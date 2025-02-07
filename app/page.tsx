@@ -11,12 +11,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Star,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useState } from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { motion } from 'framer-motion';
 
 const testimonials = [
   {
@@ -46,28 +49,84 @@ const services = [
   {
     title: 'Web Development',
     description:
-      'Full-stack development with modern technologies like React, Next.js, and Node.js',
+      'Full-stack development with modern technologies like React, Next.js, and Node.js. Building scalable and performant web applications with the latest tools and best practices.',
     icon: Code,
+    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=80',
   },
   {
     title: 'Video Editing',
     description:
-      'Professional video editing for YouTube, social media, and promotional content',
+      'Professional video editing for YouTube, social media, and promotional content. Creating engaging visual stories with advanced editing techniques and creative transitions.',
     icon: Video,
+    image: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&q=80',
   },
   {
     title: 'Content Creation',
     description:
-      'Engaging content creation for blogs, social media, and digital platforms',
+      'Engaging content creation for blogs, social media, and digital platforms. Crafting compelling narratives that resonate with your target audience and drive engagement.',
     icon: Youtube,
+    image: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=800&q=80',
   },
 ];
 
+const skills = {
+  webDevelopment: [
+    { name: 'HTML and CSS', value: 80 },
+    { name: 'JavaScript', value: 70 },
+    { name: 'PHP', value: 70 },
+    { name: 'MySQL', value: 70 },
+  ],
+  programming: [
+    { name: 'PHP', value: 70 },
+    { name: 'JavaScript', value: 70 },
+    { name: 'Python', value: 20 },
+    { name: 'C', value: 30 },
+  ],
+  database: [
+    { name: 'MySQL', value: 70 },
+    { name: 'MongoDB', value: 10 },
+    { name: 'Redis', value: 10 },
+    { name: 'PostgreSQL', value: 5 },
+  ],
+  adobe: [
+    { name: 'Photoshop', value: 70 },
+    { name: 'Adobe XD', value: 40 },
+    { name: 'Premiere Pro', value: 80 },
+    { name: 'After Effects', value: 30 },
+  ],
+};
+
+const AnimatedProgress = ({ value }: { value: number }) => {
+  return (
+    <motion.div
+      initial={{ width: '0%' }}
+      animate={{ width: `${value}%` }}
+      transition={{ duration: 2, ease: 'easeInOut' }}
+      className="h-3 bg-blue-600 rounded-lg"
+    />
+  );
+};
+
+
 export default function Home() {
   const [testimonialCarouselRef, testimonialApi] = useEmblaCarousel();
-  const [servicesCarouselRef, servicesApi] = useEmblaCarousel();
+  const [servicesCarouselRef, servicesApi] = useEmblaCarousel({
+    loop: true,
+    dragFree: true,
+  });
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
   const [currentServicesIndex, setCurrentServicesIndex] = useState(0);
+  const [hoveredService, setHoveredService] = useState<number | null>(null);
+  const [selectedTestimonial, setSelectedTestimonial] = useState<number | null>(null);
+  const [progressValues, setProgressValues] = useState<Record<string, number[]>>(() => {
+    return Object.fromEntries(
+      Object.entries(skills).map(([key, items]) => [
+        key,
+        items.map(() => 0),
+      ])
+    );
+  });
+
 
   const scrollPrevTestimonial = useCallback(
     () => testimonialApi?.scrollPrev(),
@@ -86,32 +145,6 @@ export default function Home() {
     [servicesApi]
   );
 
-  const skills = {
-    webDevelopment: [
-      { name: 'HTML and CSS', value: 80 },
-      { name: 'JavaScript', value: 70 },
-      { name: 'PHP', value: 70 },
-      { name: 'MySQL', value: 70 },
-    ],
-    programming: [
-      { name: 'PHP', value: 70 },
-      { name: 'JavaScript', value: 70 },
-      { name: 'Python', value: 20 },
-      { name: 'C', value: 30 },
-    ],
-    database: [
-      { name: 'MySQL', value: 70 },
-      { name: 'MongoDB', value: 10 },
-      { name: 'Redis', value: 10 },
-      { name: 'PostgreSQL', value: 5 },
-    ],
-    adobe: [
-      { name: 'Photoshop', value: 70 },
-      { name: 'Adobe XD', value: 40 },
-      { name: 'Premiere Pro', value: 80 },
-      { name: 'After Effects', value: 30 },
-    ],
-  };
 
   useEffect(() => {
     if (!testimonialApi || !servicesApi) return;
@@ -124,6 +157,22 @@ export default function Home() {
       setCurrentServicesIndex(servicesApi.selectedScrollSnap());
     });
   }, [testimonialApi, servicesApi]);
+
+  useEffect(() => {
+    // Animate progress bars on mount
+    const timer = setTimeout(() => {
+      setProgressValues(
+        Object.fromEntries(
+          Object.entries(skills).map(([key, items]) => [
+            key,
+            items.map((skill) => skill.value),
+          ])
+        )
+      );
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -203,13 +252,30 @@ export default function Home() {
                     <div
                       key={index}
                       className="flex-[0_0_100%] min-w-0 md:flex-[0_0_33.33%] px-4"
+                      onMouseEnter={() => setHoveredService(index)}
+                      onMouseLeave={() => setHoveredService(null)}
                     >
-                      <div className="bg-black/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8 h-full transform transition-transform hover:scale-105">
-                        <Icon className="w-12 h-12 text-blue-500 mb-6" />
-                        <h3 className="text-2xl font-bold mb-4">
-                          {service.title}
-                        </h3>
-                        <p className="text-gray-400">{service.description}</p>
+                      <div className="relative h-[400px] group overflow-hidden rounded-2xl">
+                        <Image
+                          src={service.image}
+                          alt={service.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent transition-opacity duration-300" />
+                        <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                          <div className="transform transition-transform duration-500 translate-y-4 group-hover:translate-y-0">
+                            <div className="flex items-center gap-3 mb-4">
+                              <div className="p-3 bg-blue-500/20 backdrop-blur-sm rounded-lg">
+                                <Icon className="h-6 w-6 text-blue-400" />
+                              </div>
+                              <h3 className="text-2xl font-bold">{service.title}</h3>
+                            </div>
+                            <p className="text-gray-300 transform transition-all duration-500 opacity-0 group-hover:opacity-100 max-h-0 group-hover:max-h-[200px]">
+                              {service.description}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   );
@@ -231,86 +297,137 @@ export default function Home() {
               <ChevronRight className="w-6 h-6" />
             </button>
           </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-20 bg-gradient-to-b from-blue-950 to-black">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-          <h2 className="text-6xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
-            CLIENT TESTIMONIALS
-          </h2>
-          <p className="text-center text-gray-400 mb-16">
-            What Our Clients Say About Us:
-          </p>
-
-          <div className="relative">
-            <div className="overflow-hidden" ref={testimonialCarouselRef}>
-              <div className="flex">
-                {testimonials.map((testimonial, index) => (
-                  <div key={index} className="flex-[0_0_100%] min-w-0 px-4">
-                    <div className="bg-black/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8 md:p-12">
-                      <div className="flex items-center gap-4 mb-6">
-                        <Image
-                          src={testimonial.image}
-                          alt={testimonial.name}
-                          width={64}
-                          height={64}
-                          className="rounded-full"
-                        />
-                        <div>
-                          <h3 className="text-xl font-semibold">
-                            {testimonial.name}
-                          </h3>
-                          <div className="flex gap-1">
-                            {[...Array(testimonial.rating)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className="w-4 h-4 fill-yellow-500 text-yellow-500"
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-gray-400 italic">{testimonial.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={scrollPrevTestimonial}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-
-            <button
-              onClick={scrollNextTestimonial}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          </div>
 
           <div className="flex justify-center gap-2 mt-8">
-            {testimonials.map((_, index) => (
+            {services.map((_, index) => (
               <button
                 key={index}
                 className={`w-3 h-3 rounded-full transition-all ${
-                  index === currentTestimonialIndex
+                  index === currentServicesIndex
                     ? 'bg-blue-500 w-6'
                     : 'bg-gray-600 hover:bg-gray-500'
                 }`}
-                onClick={() => testimonialApi?.scrollTo(index)}
+                onClick={() => servicesApi?.scrollTo(index)}
               />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Skills Section */}
+      {/* Testimonials Section with Two-Slider Layout */}
+      <section className="py-20 bg-gradient-to-b from-blue-950 to-black">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+          <h2 className="text-6xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+            CLIENT TESTIMONIALS
+          </h2>
+          <p className="text-center text-gray-400 mb-16">
+            What Our Clients Say About Us
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Featured Testimonial */}
+            <div className="h-[500px]">
+              <div className="relative h-full">
+                <div className="overflow-hidden h-full" ref={testimonialCarouselRef}>
+                  <div className="flex h-full">
+                    {testimonials.map((testimonial, index) => (
+                      <div
+                        key={index}
+                        className="flex-[0_0_100%] min-w-0"
+                      >
+                        <div className="bg-black/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8 h-full flex flex-col">
+                          <div className="flex items-center gap-4 mb-6">
+                            <Image
+                              src={testimonial.image}
+                              alt={testimonial.name}
+                              width={80}
+                              height={80}
+                              className="rounded-full"
+                            />
+                            <div>
+                              <h3 className="text-2xl font-semibold">
+                                {testimonial.name}
+                              </h3>
+                              <div className="flex gap-1">
+                                {[...Array(testimonial.rating)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className="w-4 h-4 fill-yellow-500 text-yellow-500"
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-gray-400 italic flex-grow">
+                            {testimonial.text}
+                          </p>
+                          <Button
+                            onClick={() => setSelectedTestimonial(index)}
+                            className="mt-4 bg-blue-600 hover:bg-blue-700"
+                          >
+                            View Full Details
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={scrollPrevTestimonial}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+
+                <button
+                  onClick={scrollNextTestimonial}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Truncated Testimonials Grid */}
+            <div className="grid grid-cols-2 gap-4 h-[500px] overflow-y-auto pr-4 custom-scrollbar">
+              {[...testimonials, ...testimonials].map((testimonial, index) => (
+                <div
+                  key={index}
+                  className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-black/50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedTestimonial(index % testimonials.length)}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Image
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                    <div>
+                      <h4 className="font-medium">{testimonial.name}</h4>
+                      <div className="flex gap-1">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className="w-3 h-3 fill-yellow-500 text-yellow-500"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-400 line-clamp-3">
+                    {testimonial.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Skills Section with Animated Progress Bars */}
       <section className="py-20 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {Object.entries(skills).map(([category, items]) => (
@@ -319,13 +436,17 @@ export default function Home() {
                 {category.replace(/([A-Z])/g, ' $1').trim()}
               </h2>
               <div className="space-y-4">
-                {items.map((skill) => (
+                {items.map((skill, index) => (
                   <div key={skill.name} className="space-y-2">
                     <div className="flex justify-between">
                       <span>{skill.name}</span>
-                      <span>{skill.value}%</span>
+                      <span className="text-blue-400">
+                        {progressValues[category]?.[index] || 0}%
+                      </span>
                     </div>
-                    <Progress value={skill.value} className="h-2" />
+                    <div className="w-full h-3 bg-gray-700 rounded-lg overflow-hidden">
+                      <AnimatedProgress value={skill.value} />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -333,6 +454,57 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* Testimonial Modal */}
+      <Dialog open={selectedTestimonial !== null} onOpenChange={() => setSelectedTestimonial(null)}>
+        <DialogContent className="max-w-2xl bg-black/90 border-white/10">
+          {selectedTestimonial !== null && (
+            <div className="relative p-6">
+              <button
+                onClick={() => setSelectedTestimonial(null)}
+                className="absolute top-2 right-2 p-2 rounded-full hover:bg-white/10 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <div className="flex items-center gap-4 mb-6">
+                <Image
+                  src={testimonials[selectedTestimonial].image}
+                  alt={testimonials[selectedTestimonial].name}
+                  width={100}
+                  height={100}
+                  className="rounded-full"
+                />
+                <div>
+                  <h3 className="text-2xl font-semibold">
+                    {testimonials[selectedTestimonial].name}
+                  </h3>
+                  <div className="flex gap-1">
+                    {[...Array(testimonials[selectedTestimonial].rating)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className="w-5 h-5 fill-yellow-500 text-yellow-500"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <p className="text-gray-300 leading-relaxed">
+                  {testimonials[selectedTestimonial].text}
+                </p>
+                <div className="pt-4 border-t border-white/10">
+                  <h4 className="font-semibold mb-2">Additional Information</h4>
+                  <ul className="text-gray-400 space-y-2">
+                    <li>Project Duration: 3 months</li>
+                    <li>Services Used: Web Development, UI/UX Design</li>
+                    <li>Completion Date: March 2024</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
