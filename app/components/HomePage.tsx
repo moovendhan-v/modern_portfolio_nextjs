@@ -15,12 +15,12 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Progress } from '@/components/ui/progress';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
-import type { Testimonial } from '@/lib/types';
+import type { Testimonial, Service } from '@/lib/types';
+
 
 const skills = {
     webDevelopment: [
@@ -51,9 +51,21 @@ const skills = {
 
 interface HomePageProps {
     testimonials: Testimonial[];
+    services: Service[];
 }
 
-export default function HomePage({ testimonials }: HomePageProps) {
+const AnimatedProgress = ({ value }: { value: number }) => (
+    <div className="w-full h-3 bg-gray-700 rounded-lg overflow-hidden">
+        <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${value}%` }}
+            transition={{ duration: 2, ease: 'easeInOut' }}
+            className="h-full bg-blue-600 rounded-lg"
+        />
+    </div>
+);
+
+export default function HomePage({ testimonials, services }: HomePageProps) {
     const [testimonialCarouselRef, testimonialApi] = useEmblaCarousel();
     const [servicesCarouselRef, servicesApi] = useEmblaCarousel({
         loop: true,
@@ -71,42 +83,7 @@ export default function HomePage({ testimonials }: HomePageProps) {
             ])
         );
     });
-
-    const services = [
-        {
-            title: 'Web Development',
-            description:
-                'Full-stack development with modern technologies like React, Next.js, and Node.js. Building scalable and performant web applications with the latest tools and best practices.',
-            icon: Code,
-            image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=80',
-        },
-        {
-            title: 'Video Editing',
-            description:
-                'Professional video editing for YouTube, social media, and promotional content. Creating engaging visual stories with advanced editing techniques and creative transitions.',
-            icon: Video,
-            image: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&q=80',
-        },
-        {
-            title: 'Content Creation',
-            description:
-                'Engaging content creation for blogs, social media, and digital platforms. Crafting compelling narratives that resonate with your target audience and drive engagement.',
-            icon: Youtube,
-            image: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=800&q=80',
-        },
-    ];
-
-    const AnimatedProgress = ({ value }: { value: number }) => {
-        return (
-            <motion.div
-                initial={{ width: '0%' }}
-                animate={{ width: `${value}%` }}
-                transition={{ duration: 2, ease: 'easeInOut' }}
-                className="h-3 bg-blue-600 rounded-lg"
-            />
-        );
-    };
-
+    
     const scrollPrevTestimonial = useCallback(
         () => testimonialApi?.scrollPrev(),
         [testimonialApi]
@@ -151,6 +128,7 @@ export default function HomePage({ testimonials }: HomePageProps) {
 
         return () => clearTimeout(timer);
     }, []);
+
     return (
         <main className="min-h-screen bg-black text-white">
             {/* Hero Section */}
@@ -225,6 +203,7 @@ export default function HomePage({ testimonials }: HomePageProps) {
                             <div className="flex">
                                 {services.map((service, index) => {
                                     const Icon = service.icon;
+                                    console.log("Icon", service.icon);
                                     return (
                                         <div
                                             key={index}
@@ -280,8 +259,8 @@ export default function HomePage({ testimonials }: HomePageProps) {
                             <button
                                 key={index}
                                 className={`w-3 h-3 rounded-full transition-all ${index === currentServicesIndex
-                                        ? 'bg-blue-500 w-6'
-                                        : 'bg-gray-600 hover:bg-gray-500'
+                                    ? 'bg-blue-500 w-6'
+                                    : 'bg-gray-600 hover:bg-gray-500'
                                     }`}
                                 onClick={() => servicesApi?.scrollTo(index)}
                             />
@@ -290,118 +269,120 @@ export default function HomePage({ testimonials }: HomePageProps) {
                 </div>
             </section>
 
-            {/* Testimonials Section */}
-            <section className="py-20 bg-gradient-to-b from-blue-950 to-black">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-                    <h2 className="text-6xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
-                        CLIENT TESTIMONIALS
-                    </h2>
-                    <p className="text-center text-gray-400 mb-16">
-                        What Our Clients Say About Us
-                    </p>
+            {/* Testimonials Section - Only show if we have testimonials */}
+            {testimonials.length > 0 && (
+                <section className="py-20 bg-gradient-to-b from-blue-950 to-black">
+                    <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+                        <h2 className="text-6xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+                            CLIENT TESTIMONIALS
+                        </h2>
+                        <p className="text-center text-gray-400 mb-16">
+                            What Our Clients Say About Us
+                        </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Featured Testimonial */}
-                        <div className="h-[500px]">
-                            <div className="relative h-full">
-                                <div className="overflow-hidden h-full" ref={testimonialCarouselRef}>
-                                    <div className="flex h-full">
-                                        {testimonials.map((testimonial: Testimonial, index: number) => (
-                                            <div
-                                                key={testimonial.id}
-                                                className="flex-[0_0_100%] min-w-0"
-                                            >
-                                                <div className="bg-black/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8 h-full flex flex-col">
-                                                    <div className="flex items-center gap-4 mb-6">
-                                                        <Image
-                                                            src={testimonial.image}
-                                                            alt={testimonial.name}
-                                                            width={80}
-                                                            height={80}
-                                                            className="rounded-full"
-                                                        />
-                                                        <div>
-                                                            <h3 className="text-2xl font-semibold">
-                                                                {testimonial.name}
-                                                            </h3>
-                                                            <div className="flex gap-1">
-                                                                {[...Array(testimonial.rating)].map((_, i) => (
-                                                                    <Star
-                                                                        key={i}
-                                                                        className="w-4 h-4 fill-yellow-500 text-yellow-500"
-                                                                    />
-                                                                ))}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Featured Testimonial */}
+                            <div className="h-[500px]">
+                                <div className="relative h-full">
+                                    <div className="overflow-hidden h-full" ref={testimonialCarouselRef}>
+                                        <div className="flex h-full">
+                                            {testimonials.map((testimonial: Testimonial, index: number) => (
+                                                <div
+                                                    key={testimonial.id}
+                                                    className="flex-[0_0_100%] min-w-0"
+                                                >
+                                                    <div className="bg-black/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8 h-full flex flex-col">
+                                                        <div className="flex items-center gap-4 mb-6">
+                                                            <Image
+                                                                src={testimonial.image}
+                                                                alt={testimonial.name}
+                                                                width={80}
+                                                                height={80}
+                                                                className="rounded-full"
+                                                            />
+                                                            <div>
+                                                                <h3 className="text-2xl font-semibold">
+                                                                    {testimonial.name}
+                                                                </h3>
+                                                                <div className="flex gap-1">
+                                                                    {[...Array(testimonial.rating)].map((_, i) => (
+                                                                        <Star
+                                                                            key={i}
+                                                                            className="w-4 h-4 fill-yellow-500 text-yellow-500"
+                                                                        />
+                                                                    ))}
+                                                                </div>
                                                             </div>
                                                         </div>
+                                                        <p className="text-gray-400 italic flex-grow">
+                                                            {testimonial.text}
+                                                        </p>
+                                                        <Button
+                                                            onClick={() => setSelectedTestimonial(index)}
+                                                            className="mt-4 bg-blue-600 hover:bg-blue-700"
+                                                        >
+                                                            View Full Details
+                                                        </Button>
                                                     </div>
-                                                    <p className="text-gray-400 italic flex-grow">
-                                                        {testimonial.text}
-                                                    </p>
-                                                    <Button
-                                                        onClick={() => setSelectedTestimonial(index)}
-                                                        className="mt-4 bg-blue-600 hover:bg-blue-700"
-                                                    >
-                                                        View Full Details
-                                                    </Button>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={scrollPrevTestimonial}
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
-                                >
-                                    <ChevronLeft className="w-6 h-6" />
-                                </button>
-
-                                <button
-                                    onClick={scrollNextTestimonial}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
-                                >
-                                    <ChevronRight className="w-6 h-6" />
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Truncated Testimonials Grid */}
-                        <div className="grid grid-cols-2 gap-4 h-[500px] overflow-y-auto pr-4 custom-scrollbar">
-                            {[...testimonials, ...testimonials].map((testimonial: Testimonial, index) => (
-                                <div
-                                    key={`${testimonial.id}-${index}`}
-                                    className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-black/50 transition-colors cursor-pointer"
-                                    onClick={() => setSelectedTestimonial(index % testimonials.length)}
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Image
-                                            src={testimonial.image}
-                                            alt={testimonial.name}
-                                            width={40}
-                                            height={40}
-                                            className="rounded-full"
-                                        />
-                                        <div>
-                                            <h4 className="font-medium">{testimonial.name}</h4>
-                                            <div className="flex gap-1">
-                                                {[...Array(testimonial.rating)].map((_, i) => (
-                                                    <Star
-                                                        key={i}
-                                                        className="w-3 h-3 fill-yellow-500 text-yellow-500"
-                                                    />
-                                                ))}
-                                            </div>
+                                            ))}
                                         </div>
                                     </div>
-                                    <p className="text-sm text-gray-400 line-clamp-3">
-                                        {testimonial.text}
-                                    </p>
+
+                                    <button
+                                        onClick={scrollPrevTestimonial}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
+                                    >
+                                        <ChevronLeft className="w-6 h-6" />
+                                    </button>
+
+                                    <button
+                                        onClick={scrollNextTestimonial}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
+                                    >
+                                        <ChevronRight className="w-6 h-6" />
+                                    </button>
                                 </div>
-                            ))}
+                            </div>
+
+                            {/* Truncated Testimonials Grid */}
+                            <div className="grid grid-cols-2 gap-4 h-[500px] overflow-y-auto pr-4 custom-scrollbar">
+                                {[...testimonials, ...testimonials].map((testimonial: Testimonial, index) => (
+                                    <div
+                                        key={`${testimonial.id}-${index}`}
+                                        className="bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-black/50 transition-colors cursor-pointer"
+                                        onClick={() => setSelectedTestimonial(index % testimonials.length)}
+                                    >
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Image
+                                                src={testimonial.image}
+                                                alt={testimonial.name}
+                                                width={40}
+                                                height={40}
+                                                className="rounded-full"
+                                            />
+                                            <div>
+                                                <h4 className="font-medium">{testimonial.name}</h4>
+                                                <div className="flex gap-1">
+                                                    {[...Array(testimonial.rating)].map((_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className="w-3 h-3 fill-yellow-500 text-yellow-500"
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-gray-400 line-clamp-3">
+                                            {testimonial.text}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* Skills Section with Animated Progress Bars */}
             <section className="py-20 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -471,9 +452,9 @@ export default function HomePage({ testimonials }: HomePageProps) {
                                 <div className="pt-4 border-t border-white/10">
                                     <h4 className="font-semibold mb-2">Additional Information</h4>
                                     <ul className="text-gray-400 space-y-2">
-                                        <li>{testimonials[selectedTestimonial].additionalInfo.projectDuration}</li>
-                                        <li>{testimonials[selectedTestimonial].additionalInfo.servicesUsed}</li>
-                                        <li>{testimonials[selectedTestimonial].additionalInfo.completionDate}</li>
+                                        <li>Duriations: {testimonials[selectedTestimonial].additionalInfo.projectDuration}</li>
+                                        <li>Status: {testimonials[selectedTestimonial].additionalInfo.servicesUsed}</li>
+                                        <li>Complition Date: {testimonials[selectedTestimonial].additionalInfo.completionDate}</li>
                                     </ul>
                                 </div>
                             </div>

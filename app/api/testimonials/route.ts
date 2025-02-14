@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { notion } from '@/lib/notion';
 
 export async function GET() {
-  const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
+  const NOTION_CLIENT_DATABASE_ID = process.env.NOTION_CLIENT_DATABASE_ID;
   
-  if (!NOTION_DATABASE_ID) {
+  if (!NOTION_CLIENT_DATABASE_ID) {
     return NextResponse.json(
       { error: 'Missing Notion Database ID' },
       { status: 500 }
@@ -13,25 +13,25 @@ export async function GET() {
   
   try {
     const response = await notion.databases.query({
-      database_id: NOTION_DATABASE_ID,
+      database_id: NOTION_CLIENT_DATABASE_ID,
       sorts: [
         {
-          property: 'Created time',
-          direction: 'descending',
-        },
-      ],
+          property: "Name",
+          direction: "descending"
+        }
+      ]
     });
 
     const testimonials = response.results.map((page: any) => ({
       id: page.id,
-      name: page.properties.Name?.title[0]?.plain_text || 'Anonymous',
-      image: page.properties.Image?.files[0]?.file?.url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      rating: page.properties.Rating?.number || 5,
-      text: page.properties.Description?.rich_text[0]?.plain_text || '',
+      name: page.properties.client_name?.rich_text[0]?.plain_text || 'Anonymous',
+      image: page.properties.client_image?.files[0]?.external?.url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+      rating: 5,
+      text: page.properties.client_review?.rich_text[0]?.plain_text || '',
       additionalInfo: {
-        projectDuration: page.properties.Duration?.rich_text[0]?.plain_text || '3 months',
-        servicesUsed: page.properties.Services?.rich_text[0]?.plain_text || 'Web Engineering',
-        completionDate: page.properties['Completion Date']?.date?.start || 'March 2024',
+        projectDuration: page.properties.duriations?.rich_text[0]?.text?.content || 'N/A',
+        servicesUsed: page.properties.Status?.status?.name || 'N/A',
+        completionDate: page.created_time?.split('T')[0] || 'N/A',
       },
     }));
 
