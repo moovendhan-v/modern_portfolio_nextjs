@@ -2,77 +2,60 @@ import { Card } from '@/components/ui/card';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 
-const blogPosts = [
-  {
-    id: 'post1',
-    title: '10 Advanced Photoshop Techniques Every Editor Should Know',
-    excerpt:
-      'Master these essential Photoshop techniques to take your editing skills to the next level...',
-    image:
-      'https://images.unsplash.com/photo-1572044162444-ad60f128bdea?w=800&q=80',
-    date: 'March 15, 2024',
-    readTime: '8 min read',
-    category: 'Tutorials',
-  },
-  {
-    id: 'post2',
-    title: 'The Evolution of Battle Royale Games: From PUBG to Present',
-    excerpt:
-      'Exploring how battle royale games have transformed the gaming industry...',
-    image:
-      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80',
-    date: 'March 10, 2024',
-    readTime: '6 min read',
-    category: 'Gaming',
-  },
-  {
-    id: 'post2',
-    title: 'The Evolution of Battle Royale Games: From PUBG to Present',
-    excerpt:
-      'Exploring how battle royale games have transformed the gaming industry...',
-    image:
-      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80',
-    date: 'March 10, 2024',
-    readTime: '6 min read',
-    category: 'Gaming',
-  },
-  {
-    id: 'post2',
-    title: 'The Evolution of Battle Royale Games: From PUBG to Present',
-    excerpt:
-      'Exploring how battle royale games have transformed the gaming industry...',
-    image:
-      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80',
-    date: 'March 10, 2024',
-    readTime: '6 min read',
-    category: 'Gaming',
-  },
-  {
-    id: 'post2',
-    title: 'The Evolution of Battle Royale Games: From PUBG to Present',
-    excerpt:
-      'Exploring how battle royale games have transformed the gaming industry...',
-    image:
-      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80',
-    date: 'March 10, 2024',
-    readTime: '6 min read',
-    category: 'Gaming',
-  },
-  {
-    id: 'post2',
-    title: 'The Evolution of Battle Royale Games: From PUBG to Present',
-    excerpt:
-      'Exploring how battle royale games have transformed the gaming industry...',
-    image:
-      'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80',
-    date: 'March 10, 2024',
-    readTime: '6 min read',
-    category: 'Gaming',
-  },
-];
+// Define the API response type
+interface BlogApiResponse {
+  posts: BlogPost[];
+  nextPageToken?: string | null;
+}
 
-export default function BlogsPage() {
+// Define the blog post type
+interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  url: string;
+  published: string;
+  thumbnail: string;
+  labels: string[];
+}
+
+async function getBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/blog`, {
+      next: { revalidate: 3600 },
+      cache: 'force-cache',
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=59'
+      },
+      signal: AbortSignal.timeout(30000), // 30 second timeout
+    });
+   
+    if (!res.ok) throw new Error('Failed to fetch blog posts');
+    
+    const data = await res.json();
+    
+    // Check if data has a posts property that is an array
+    if (data && Array.isArray(data.posts)) {
+      return data.posts;
+    } else if (Array.isArray(data)) {
+      // Fallback for if the API returns an array directly
+      return data;
+    } else {
+      console.error('API did not return expected format:', data);
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return [];
+  }
+}
+
+export default async function BlogsPage() {
+  const blogPosts = await getBlogPosts();
+  
   return (
     <main className="min-h-screen pt-20 pb-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="space-y-8">
@@ -83,51 +66,60 @@ export default function BlogsPage() {
             creative editing
           </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogPosts.map((post) => (
-            <Card
-              key={post.id}
-              className="overflow-hidden bg-black/50 border-gray-800"
-            >
-              <div className="aspect-[16/9] relative">
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-4 space-y-4">
-                <div className="space-y-2">
-                  <span className="text-sm font-medium text-blue-500">
-                    {post.category}
-                  </span>
-                  <h3 className="font-semibold line-clamp-2">{post.title}</h3>
-                  <p className="text-sm text-gray-400 line-clamp-2">
-                    {post.excerpt}
-                  </p>
+        
+        {blogPosts.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-400">No blog posts found. Check back soon!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {blogPosts.map((post: BlogPost) => (
+              <Card
+                key={post.id}
+                className="overflow-hidden bg-black/50 border-gray-800"
+              >
+                <div className="aspect-[16/9] relative">
+                  <Image
+                    src={post.thumbnail || '/blog-placeholder.jpg'}
+                    alt={post.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                <div className="flex items-center justify-between text-sm text-gray-400">
-                  <div className="flex items-center gap-4">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" /> {post.date}
+                <div className="p-4 space-y-4">
+                  <div className="space-y-2">
+                    <span className="text-sm font-medium text-blue-500">
+                      {post.labels?.[0] || 'General'}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" /> {post.readTime}
-                    </span>
+                    <h3 className="font-semibold line-clamp-2">{post.title}</h3>
+                    <p className="text-sm text-gray-400 line-clamp-2">
+                      {post.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
+                    </p>
                   </div>
-                  <Link
-                    href={`/blogs/${post.id}`}
-                    className="text-blue-500 hover:text-blue-400 flex items-center gap-1"
-                  >
-                    Read more <ArrowRight className="h-4 w-4" />
-                  </Link>
+                  <div className="flex items-center justify-between text-sm text-gray-400">
+                    <div className="flex items-center gap-4">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        {formatDistanceToNow(parseISO(post.published), { addSuffix: true })}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        {Math.ceil(post.content.length / 1000)} min read
+                      </span>
+                    </div>
+                    <Link
+                      href={post.url}
+                      target="_blank"
+                      className="text-blue-500 hover:text-blue-400 flex items-center gap-1"
+                    >
+                      Read more <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );

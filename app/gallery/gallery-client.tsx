@@ -4,33 +4,27 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Gallery } from '@/lib/types';
 
-export interface GalleryImage {
-  src: string;
-  alt: string;
-  title: string;
+interface GalleryClientProps {
+  gallery: Gallery[];
 }
 
-export interface Gallery {
-  title: string;
-  description: string;
-  images: GalleryImage[];
-}
-
-export function GalleryClient({ gallery }: { gallery: Gallery }) {
+export function GalleryClient({ gallery }: GalleryClientProps) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [imageError, setImageError] = useState<Record<string, boolean>>({});
 
   const handlePrevious = () => {
     if (selectedImage === null) return;
     setSelectedImage(
-      selectedImage === 0 ? gallery.images.length - 1 : selectedImage - 1
+      selectedImage === 0 ? gallery.length - 1 : selectedImage - 1
     );
   };
 
   const handleNext = () => {
     if (selectedImage === null) return;
     setSelectedImage(
-      selectedImage === gallery.images.length - 1 ? 0 : selectedImage + 1
+      selectedImage === gallery.length - 1 ? 0 : selectedImage + 1
     );
   };
 
@@ -38,33 +32,32 @@ export function GalleryClient({ gallery }: { gallery: Gallery }) {
     <main className="min-h-screen pt-20 pb-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="space-y-8">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">{gallery.title}</h1>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            {gallery.description}
-          </p>
+          <h1 className="text-4xl font-bold">Gallery</h1>
         </div>
 
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-          {gallery.images.map((image, index) => (
-            <div
-              key={index}
-              className="break-inside-avoid"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+          {gallery.map((item, index) => (
+            <div 
+              key={item.image} 
+              className="relative group overflow-hidden rounded-xl aspect-[4/3]"
               onClick={() => setSelectedImage(index)}
             >
-              <div className="group relative overflow-hidden rounded-xl cursor-pointer">
-                <div className="aspect-[4/5] relative">
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100" />
-                  <div className="absolute inset-0 p-4 flex items-end opacity-0 transition-opacity group-hover:opacity-100">
-                    <h3 className="text-lg font-semibold text-white">
-                      {image.title}
-                    </h3>
-                  </div>
+              <Image
+                src={item.image}
+                alt={item.title}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                onError={() => setImageError({ ...imageError, [item.image]: true })}
+                loading="lazy"
+                quality={75}
+              />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-0 p-4 w-full">
+                  <h3 className="text-xl font-bold text-white">{item.title}</h3>
+                  {item.description && (
+                    <p className="text-gray-200 text-sm">{item.description}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -81,10 +74,12 @@ export function GalleryClient({ gallery }: { gallery: Gallery }) {
             <div className="relative">
               <div className="aspect-[4/3] relative">
                 <Image
-                  src={gallery.images[selectedImage].src}
-                  alt={gallery.images[selectedImage].alt}
+                  src={gallery[selectedImage].image}
+                  alt={gallery[selectedImage].title}
                   fill
                   className="object-contain"
+                  quality={100}
+                  priority
                 />
               </div>
               <button

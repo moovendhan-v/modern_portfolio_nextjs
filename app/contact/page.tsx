@@ -39,7 +39,7 @@ export default function ContactPage() {
                 <MapPin className="text-blue-500 h-6 w-6" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Location</h3>
-              <p className="text-gray-400">Chennai, Tamil Nadu, India</p>
+              <p className="text-gray-400">Kalthirampet, Tamil Nadu, India</p>
             </div>
 
             <div className="bg-black/50 backdrop-blur-sm border border-white/10 rounded-xl p-6">
@@ -47,7 +47,7 @@ export default function ContactPage() {
                 <Mail className="text-blue-500 h-6 w-6" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Email</h3>
-              <p className="text-gray-400">contact@moovendhan.com</p>
+              <p className="text-gray-400">vmoovendhan3@gmail.com</p>
             </div>
 
             <div className="bg-black/50 backdrop-blur-sm border border-white/10 rounded-xl p-6">
@@ -55,7 +55,7 @@ export default function ContactPage() {
                 <Phone className="text-blue-500 h-6 w-6" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Phone</h3>
-              <p className="text-gray-400">+91 98765 43210</p>
+              <p className="text-gray-400">+91 9750639894</p>
             </div>
 
             <div className="bg-black/50 backdrop-blur-sm border border-white/10 rounded-xl p-6">
@@ -63,7 +63,7 @@ export default function ContactPage() {
                 <Clock className="text-blue-500 h-6 w-6" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Working Hours</h3>
-              <p className="text-gray-400">Mon - Fri: 9:00 AM - 6:00 PM</p>
+              <p className="text-gray-400">N/A</p>
             </div>
           </div>
 
