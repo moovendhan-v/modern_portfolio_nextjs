@@ -10,7 +10,7 @@ async function getGalleryData() {
         'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=59'
       },
       // Add timeout and retry logic
-      signal: AbortSignal.timeout(5000), // 5 second timeout
+      signal: AbortSignal.timeout(30000), // 5 second timeout
     });
     
     if (!res.ok) throw new Error('Failed to fetch gallery data');
