@@ -4,8 +4,8 @@ import type { Testimonial, Service } from '@/lib/types';
 export default async function Page() {
   try {
     const [testimonialsResponse, servicesResponse] = await Promise.all([
-      fetch('http://localhost:3000/api/testimonials'),
-      fetch('http://localhost:3000/api/service'),
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/testimonials`),
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/service`),
     ]);
 
     if (!testimonialsResponse.ok || !servicesResponse.ok) {

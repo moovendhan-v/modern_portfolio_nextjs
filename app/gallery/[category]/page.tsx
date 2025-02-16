@@ -3,7 +3,7 @@ import { GalleryClient } from '../gallery-client';
 
 async function getGalleryData() {
   try {
-    const res = await fetch('http://localhost:3000/api/gallery', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/gallery`, {
       next: { revalidate: 3600 },
       cache: 'force-cache',
       headers: {

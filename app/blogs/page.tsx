@@ -23,7 +23,7 @@ interface BlogPost {
 
 async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
     const res = await fetch(`${baseUrl}/api/blog`, {
       next: { revalidate: 3600 },
       cache: 'force-cache',
