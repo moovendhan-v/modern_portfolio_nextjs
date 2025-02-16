@@ -1,19 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
   eslint: {
     ignoreDuringBuilds: true,
   },
   images: {
-    unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'blogger.googleusercontent.com',
-        pathname: '/img/**',
-      },
+    domains: [
+      'blogger.googleusercontent.com',
+      'www.notion.so',
+      'images.unsplash.com'
     ],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+    unoptimized: process.env.NODE_ENV === 'development', // Disable optimization in development
   },
+  experimental: {
+    workerThreads: false,
+    cpus: 1
+  }
 };
 
 module.exports = nextConfig;

@@ -21,3 +21,11 @@ export interface Service {
   image: string;
   icon: LucideIcon;
 }
+
+export interface Gallery {
+  title: string;
+  description: string;
+  icon: string;
+  image: string;
+  category: string;
+}

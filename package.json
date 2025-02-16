@@ -1,9 +1,11 @@
 {
-  "name": "nextjs",
+  "name": "modern_portfolio_nextjs",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:turbo": "next dev --turbo",
+    "dev:fast": "NEXT_MINIMAL=1 next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -12,6 +14,7 @@
     "@hookform/resolvers": "^3.9.0",
     "@next/swc-wasm-nodejs": "13.5.1",
     "@notionhq/client": "^2.2.15",
+    "@playwright/test": "^1.50.1",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",

@@ -21,7 +21,7 @@ const categories = [
     title: 'Gaming',
     slug: 'gaming',
     image:
-      'https://cdn.pixabay.com/photo/2023/12/13/06/40/cat-8446390_1280.jpg',
+      'https://blogger.googleusercontent.com/img/a/AVvXsEhr_NlidocCkMrc26GYs86yIKArBF35_eEeNUUsuUZR6n05jvu8PL6jIGvyYLm1OgON1ZoT8oUkQu3BE9lkWj5dv6NnGxcSdd1FkHZS3xkiogFvY8TCEfMqGMMjkDFmzuNrLH2jW8yiMQssVU3H6Yrc1MwHafLEabPsy2_AwdwLGJL7u9D3H4Hs-MLxn7ib=s16000',
     description: 'Gaming screenshots and edits',
   },
   {
