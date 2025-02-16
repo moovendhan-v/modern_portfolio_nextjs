@@ -83,7 +83,7 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
             ])
         );
     });
-    
+
     const scrollPrevTestimonial = useCallback(
         () => testimonialApi?.scrollPrev(),
         [testimonialApi]
@@ -141,11 +141,11 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                             <span className="text-blue-500">Moovendhan V,</span>
                         </h1>
                         <p className="text-lg text-gray-400">
-                            Hi, I am a professional web developer. I have been actively
-                            engaged in writing articles for a blog. Additionally, I possess a
-                            keen interest in multimedia and have dedicated the past two years
-                            to working on YouTube.
+                            I'm <strong>Moovendhan</strong>, a passionate web engineer specializing in <strong>scalable, high-performance applications</strong>
+                            <br />
+                            At <a href="https://cybertechmind.com" className="text-blue-500 font-medium hover:underline" target="_blank" rel="noopener noreferrer">CyberTechMind</a>, I simplify complex tech concepts, enhance online security awareness, and share real-world solutions. My mission is to empower tech enthusiasts and innovators with <strong>practical advice and honest recommendations</strong>.
                         </p>
+
                         <div className="flex gap-4">
                             <Button className="bg-blue-600 hover:bg-blue-700">
                                 <Code className="mr-2 h-4 w-4" /> Web developer

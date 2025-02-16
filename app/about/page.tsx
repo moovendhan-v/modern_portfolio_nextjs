@@ -8,51 +8,10 @@ import {
   Briefcase,
   GraduationCap,
 } from 'lucide-react';
+import { certifications, education, experiences } from '@/app/data/about';
 import Image from 'next/image';
 
 export default function AboutPage() {
-  const experiences = [
-    {
-      title: 'Senior Web Developer',
-      company: 'Tech Solutions Inc',
-      period: '2022 - Present',
-      location: 'Remote',
-      description:
-        'Leading web development projects using Next.js, React, and Node.js. Managing team of 5 developers.',
-    },
-    {
-      title: 'Full Stack Developer',
-      company: 'Digital Innovations',
-      period: '2020 - 2022',
-      location: 'Chennai, India',
-      description:
-        'Developed and maintained multiple web applications using MERN stack and PHP.',
-    },
-  ];
-
-  const education = [
-    {
-      degree: 'Bachelor of Engineering in Computer Science',
-      institution: 'Anna University',
-      period: '2016 - 2020',
-      location: 'Chennai, India',
-      description:
-        'Specialized in web technologies and software development. CGPA: 8.5/10',
-    },
-  ];
-
-  const certifications = [
-    {
-      name: 'AWS Certified Developer',
-      issuer: 'Amazon Web Services',
-      year: '2023',
-    },
-    {
-      name: 'Meta Frontend Developer',
-      issuer: 'Meta',
-      year: '2022',
-    },
-  ];
 
   return (
     <main className="min-h-screen pt-20 pb-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -62,11 +21,7 @@ export default function AboutPage() {
           <div className="space-y-6">
             <h1 className="text-4xl font-bold">About Me</h1>
             <p className="text-gray-400 text-lg">
-              Hi, Im Moovendhan V, a passionate web developer and creative
-              content creator. With over 4 years of experience in web
-              development and 2 years in content creation, I specialize in
-              building modern web applications and creating engaging digital
-              content.
+            At CyberTechMind, I envision a world where technology empowers rather than controls. My mission is to simplify complex tech concepts, help readers stay safe online, and provide real-world solutions to everyday challenges. From development to cybersecurity insights, this blog is here to serve tech enthusiasts and innovators who want practical advice and honest recommendations.
             </p>
             <div className="flex gap-4">
               <Button className="bg-blue-600 hover:bg-blue-700">
