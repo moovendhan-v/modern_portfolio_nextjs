@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const navItems = [
   { href: '/about', label: 'About', icon: User },
@@ -28,6 +29,19 @@ const navItems = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+
+  const HireMeButton = () => {
+    const router = useRouter();
+  
+    return (
+      <Button
+        className="bg-blue-600 hover:bg-blue-700"
+        onClick={() => router.push("/contact")}
+      >
+        Hire Me
+      </Button>
+    );
+  };
 
   const isActive = (path: string) => {
     if (path === '/') return pathname === path;
@@ -52,11 +66,10 @@ export default function Navbar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
-                      isActive(item.href)
+                    className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${isActive(item.href)
                         ? 'text-blue-500 bg-blue-500/10'
                         : 'text-gray-300 hover:text-white hover:bg-white/10'
-                    }`}
+                      }`}
                   >
                     <Icon className="h-4 w-4" />
                     {item.label}
@@ -73,7 +86,7 @@ export default function Navbar() {
                   <Mail className="h-5 w-5" />
                 </Button>
               </Link>
-              <Button className="bg-blue-600 hover:bg-blue-700">Hire Me</Button>
+              <HireMeButton />
             </div>
           </div>
 
@@ -98,11 +111,10 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
-                    isActive(item.href)
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${isActive(item.href)
                       ? 'text-blue-500 bg-blue-500/10'
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
-                  }`}
+                    }`}
                   onClick={() => setIsOpen(false)}
                 >
                   <Icon className="h-4 w-4" />
