@@ -21,6 +21,20 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
 import type { Testimonial, Service } from '@/lib/types';
 
+// Map icon names to components
+const ICONS = Object.freeze({
+    Code: Code,
+    Youtube: Youtube,
+    Video: Video,
+});
+
+interface IconComponents {
+    [key: string]: React.ComponentType;
+}
+
+const getIconComponent = (iconName: string): React.ComponentType<{ className?: string }> => {
+    return (ICONS as IconComponents)[iconName] || Code; // Default to Code if not found
+};
 
 const skills = {
     webDevelopment: [
@@ -160,7 +174,7 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                                     <Github className="h-5 w-5" />
                                 </Button>
                             </Link>
-                            <Link href="https://youtube.com/yourchannel" target="_blank">
+                            <Link href="https://www.youtube.com/@moovendhanagri" target="_blank">
                                 <Button variant="ghost" size="icon">
                                     <Youtube className="h-5 w-5" />
                                 </Button>
@@ -202,7 +216,7 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                         <div className="overflow-hidden" ref={servicesCarouselRef}>
                             <div className="flex">
                                 {services.map((service, index) => {
-                                    const Icon = service.icon;
+                                    const Icon = getIconComponent(service.icon as unknown as string);
                                     console.log("Icon", service.icon);
                                     return (
                                         <div
