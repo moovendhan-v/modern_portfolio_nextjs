@@ -1,7 +1,5 @@
 # Moovendhan | CyberTechMind Portfolio
 
-![Portfolio Screenshot](https://your-image-url.com)
-
 🚀 **Welcome to my modern portfolio!**
 
 This repository contains the source code for my personal portfolio website, built with Next.js, Tailwind CSS, and modern web technologies.
