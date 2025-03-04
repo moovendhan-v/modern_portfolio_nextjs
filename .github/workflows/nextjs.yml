@@ -73,6 +73,24 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+      - name: Create .env file
+        run: |
+          echo "NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}" >> .env.production
+          echo "NOTION_API_KEY=${{ secrets.NOTION_API_KEY }}" >> .env.production
+          echo "NOTION_EMAIL_SUBSCRIBE_DATABASE_ID=${{ secrets.NOTION_EMAIL_SUBSCRIBE_DATABASE_ID }}" >> .env.production
+          echo "NOTION_DATABASE_ID=${{ secrets.NOTION_DATABASE_ID }}" >> .env.production
+          echo "NOTION_CLIENT_DATABASE_ID=${{ secrets.NOTION_CLIENT_DATABASE_ID }}" >> .env.production
+          echo "NOTION_SERVICE_DATABASE_ID=${{ secrets.NOTION_SERVICE_DATABASE_ID }}" >> .env.production
+          echo "NOTION_GALLERY_DATABASE_ID=${{ secrets.NOTION_GALLERY_DATABASE_ID }}" >> .env.production
+          echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> .env.production
+          echo "YOUTUBE_CHANNEL_ID=${{ secrets.YOUTUBE_CHANNEL_ID }}" >> .env.production
+          echo "BLOGGER_BLOG_ID=${{ secrets.BLOGGER_BLOG_ID }}" >> .env.production
+          echo "NEXT_PUBLIC_POSTHOG_KEY=${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" >> .env.production
+          echo "NEXT_PUBLIC_POSTHOG_HOST=${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}" >> .env.production
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> .env.production
+          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env.production
+          echo "NOTIFY_EMAIL=${{ secrets.NOTIFY_EMAIL }}" >> .env.production
+          echo "WEBHOOK_URL=${{ secrets.WEBHOOK_URL }}" >> .env.production
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Upload artifact
