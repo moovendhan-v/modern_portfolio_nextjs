@@ -3,6 +3,7 @@ import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow, parseISO } from 'date-fns';
+import BlogChatButton from './BlogChatButton'; // Client component for the AI chat
 
 // Define the API response type
 interface BlogApiResponse {
@@ -60,10 +61,13 @@ export default async function BlogsPage() {
     <main className="min-h-screen pt-20 pb-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="space-y-8">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">Blog Posts</h1>
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <h1 className="text-4xl font-bold">Blog Posts</h1>
+            <BlogChatButton />
+          </div>
           <p className="text-gray-400 max-w-2xl mx-auto">
             Insights, tutorials, and stories about web development, gaming, and
-            creative editing
+            creative editing. Use our AI assistant to discover relevant posts!
           </p>
         </div>
         
@@ -80,7 +84,7 @@ export default async function BlogsPage() {
               >
                 <div className="aspect-[16/9] relative">
                   <Image
-                    src={post.thumbnail || '/blog-placeholder.jpg'}
+                    src={post.thumbnail || 'https://avatars.githubusercontent.com/u/96030910?s=400&u=9e85c0b451a4d7b141357a646877f30b1cbf7e11&v=4'}
                     alt={post.title}
                     fill
                     className="object-cover"

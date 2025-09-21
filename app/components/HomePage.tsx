@@ -20,6 +20,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
 import type { Testimonial, Service } from '@/lib/types';
+import BlogChatButton from '@/app/blogs/BlogChatButton';
 
 // Map icon names to components
 const ICONS = Object.freeze({
@@ -476,6 +477,11 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                     )}
                 </DialogContent>
             </Dialog>
+
+            {/* Blog Chat Button */}
+            <div className="fixed bottom-4 right-4 z-50">
+                <BlogChatButton />
+            </div>
         </main>
     );
-} 
+}
