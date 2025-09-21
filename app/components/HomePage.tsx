@@ -17,10 +17,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
 import type { Testimonial, Service } from '@/lib/types';
-import BlogChatButton from '@/app/blogs/BlogChatButton';
+import { BlogModal } from '@/app/blogs/BlogModal';
 
 // Map icon names to components
 const ICONS = Object.freeze({
@@ -90,6 +91,7 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
     const [currentServicesIndex, setCurrentServicesIndex] = useState(0);
     const [hoveredService, setHoveredService] = useState<number | null>(null);
     const [selectedTestimonial, setSelectedTestimonial] = useState<number | null>(null);
+    const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
     const [progressValues, setProgressValues] = useState<Record<string, number[]>>(() => {
         return Object.fromEntries(
             Object.entries(skills).map(([key, items]) => [
@@ -478,10 +480,21 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                 </DialogContent>
             </Dialog>
 
-            {/* Blog Chat Button */}
+            {/* Blog Modal Button */}
             <div className="fixed bottom-4 right-4 z-50">
-                <BlogChatButton />
+                <Button
+                    onClick={() => setIsBlogModalOpen(true)}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                    <Sparkles className="h-6 w-6" />
+                </Button>
             </div>
+
+            {/* Blog Modal */}
+            <BlogModal
+                isOpen={isBlogModalOpen}
+                onClose={() => setIsBlogModalOpen(false)}
+            />
         </main>
     );
 }

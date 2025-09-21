@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { MessageCircle, Send, X, Minimize2 } from 'lucide-react';
+import { Sparkles, Send, X, Minimize2 } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -33,6 +33,15 @@ export default function QuickChatWidget() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Auto-open chat after 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -84,7 +93,7 @@ export default function QuickChatWidget() {
           onClick={() => setIsMinimized(false)}
           className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 shadow-lg"
         >
-          <MessageCircle className="h-5 w-5" />
+          <Sparkles className="h-5 w-5" />
         </Button>
       </div>
     );
@@ -98,7 +107,7 @@ export default function QuickChatWidget() {
           onClick={() => setIsOpen(true)}
           className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200"
         >
-          <MessageCircle className="h-6 w-6" />
+          <Sparkles className="h-6 w-6" />
         </Button>
       </div>
 
