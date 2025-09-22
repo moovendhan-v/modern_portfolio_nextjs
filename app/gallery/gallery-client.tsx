@@ -35,19 +35,20 @@ export function GalleryClient({ gallery }: GalleryClientProps) {
           <h1 className="text-4xl font-bold">Gallery</h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+        <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 p-6">
           {gallery.map((item, index) => (
-            <div 
-              key={item.image} 
-              className="relative group overflow-hidden rounded-xl aspect-[4/3]"
+            <div
+              key={item.image}
+              className="relative group overflow-hidden rounded-xl mb-6 break-inside-avoid"
               onClick={() => setSelectedImage(index)}
             >
               <Image
                 src={item.image}
                 alt={item.title}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                width={400}
+                height={300}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, (max-width: 1536px) 33vw, 25vw"
+                className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
                 onError={() => setImageError({ ...imageError, [item.image]: true })}
                 loading="lazy"
                 quality={75}

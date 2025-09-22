@@ -115,7 +115,7 @@ function BlogModal({ isOpen, onClose }: BlogModalProps) {
       console.error('Error sending chat message:', error);
       return {
         type: 'error',
-        message: 'Sorry, I encountered an error. Please try again.'
+        message: `Sorry, I encountered an error. Please try again.`
       };
     }
   };
