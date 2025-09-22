@@ -1,5 +1,27 @@
 import { NextResponse } from 'next/server';
 
+async function fetchWithRetry(url: string, options: RequestInit, retries: number = 3): Promise<Response> {
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => 'No response body');
+      throw new Error(`Failed to fetch blog posts: ${res.status} ${res.statusText} - ${errorText}`);
+    }
+    return res;
+  } catch (error) {
+    if (retries > 0) {
+      // Add exponential backoff
+      const delay = 1000 * Math.pow(2, 3 - retries); // 1s, 2s, 4s
+      console.warn(`Retrying after ${delay}ms... (${retries} attempts left)`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return fetchWithRetry(url, options, retries - 1);
+    } else {
+      console.error('Failed to fetch blog posts after multiple attempts:', error);
+      throw error;
+    }
+  }
+}
+
 // POST endpoint for AI chat interactions
 export async function POST(request: Request) {
   try {
@@ -111,97 +133,78 @@ export async function POST(request: Request) {
   }
 }
 
-// GET endpoint for fetching blog data
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const url = new URL(request.url);
-    const blogId = url.searchParams.get('id');
-    const action = url.searchParams.get('action');
-
-    if (!process.env.CLOUDFLARE_AI_CHAT) {
+    // Validate required environment variables
+    const blogId = process.env.BLOGGER_BLOG_ID;
+    const apiKey = process.env.GOOGLE_API_KEY;
+    
+    if (!blogId || !apiKey) {
+      console.error('Missing required environment variables');
       return NextResponse.json(
-        { type: 'error', message: 'AI service not configured' },
+        { error: 'Server configuration error' },
         { status: 500 }
       );
     }
-
-    // Get specific blog post
-    if (blogId && action === 'blog') {
-      try {
-        const res = await fetch(`${process.env.CLOUDFLARE_AI_CHAT}/blog?id=${blogId}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          console.log('Cloudflare Blog Response:', data);
-
-          return NextResponse.json({
-            type: 'blog',
-            blog: data.blog,
-            success: data.success
-          });
-        } else {
-          console.error('Cloudflare Blog API failed:', res.status, res.statusText);
-          return NextResponse.json(
-            { type: 'error', message: 'Blog not found' },
-            { status: 404 }
-          );
-        }
-      } catch (err) {
-        console.error('Error calling Cloudflare Blog API:', err);
-        return NextResponse.json(
-          { type: 'error', message: 'Failed to fetch blog' },
-          { status: 502 }
-        );
+    
+    console.log('Blog ID:', blogId);
+    console.log('API Key exists:', !!apiKey);
+    
+    const apiUrl = `https://www.googleapis.com/blogger/v3/blogs/${blogId}/posts`;
+    const params = new URLSearchParams({
+      key: apiKey,
+      maxResults: '6',
+      orderBy: 'published',
+      fields: 'items(id,title,content,url,published,updated,labels,author,images),nextPageToken',
+      fetchBodies: 'true'
+    });
+    
+    console.log('Fetching from:', `${apiUrl}?${params.toString().replace(apiKey, '[REDACTED]')}`);
+    
+    const res = await fetchWithRetry(`${apiUrl}?${params}`, {
+      signal: AbortSignal.timeout(5000), // 5 second timeout
+      headers: {
+        'Accept': 'application/json',
       }
+    });
+    
+    const data = await res.json();
+   
+    if (!data.items || !Array.isArray(data.items)) {
+      console.log('No items found in response:', data);
+      return NextResponse.json([]);  // Return empty array instead of object
     }
-
-    // Get all blog posts
-    if (action === 'blogs') {
-      try {
-        const res = await fetch(`${process.env.CLOUDFLARE_AI_CHAT}/blogs`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          console.log('Cloudflare Blogs Response:', data);
-
-          return NextResponse.json({
-            type: 'blogs',
-            blogs: data.blogs,
-            success: data.success
-          });
-        } else {
-          console.error('Cloudflare Blogs API failed:', res.status, res.statusText);
-          return NextResponse.json(
-            { type: 'error', message: 'Failed to fetch blogs' },
-            { status: 502 }
-          );
+    
+    console.log(`Found ${data.items.length} blog posts`);
+    
+    const posts = data.items.map((post: any) => {
+      // Extract first image from content more reliably
+      const imgMatch = post.content?.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/i);
+      const contentImage = imgMatch ? imgMatch[1] : null;
+      
+      return {
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        url: post.url,
+        published: post.published,
+        updated: post.updated,
+        labels: post.labels || [],
+        thumbnail: post.images?.[0]?.url ||
+                  contentImage ||
+                  '/blog-placeholder.jpg',
+        author: {
+          name: post.author?.displayName || 'Anonymous',
+          image: post.author?.image?.url || null
         }
-      } catch (err) {
-        console.error('Error calling Cloudflare Blogs API:', err);
-        return NextResponse.json(
-          { type: 'error', message: 'Failed to fetch blogs' },
-          { status: 502 }
-        );
-      }
-    }
-
-    // Invalid GET request
-    return NextResponse.json(
-      { type: 'error', message: 'Invalid GET request' },
-      { status: 400 }
-    );
-
+      };
+    });
+    
+    // Return the posts array directly, not wrapped in an object
+    return NextResponse.json(posts);
   } catch (error) {
-    console.error('Error in GET blog API:', error);
-    return NextResponse.json(
-      { type: 'error', message: 'Failed to process request. Please try again.' },
-      { status: 500 }
-    );
+    console.error('Error in blog API:', error);
+    // Return an empty array on error to prevent client-side errors
+    return NextResponse.json([]);
   }
 }
