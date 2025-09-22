@@ -289,14 +289,14 @@ const skills = [
         icon: PenTool, 
         color: 'from-pink-500 to-purple-700',
         category: 'Design',
-        iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/xd/xd-plain.svg'
+        iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/xd/xd-original.svg'
     },
     { 
         name: 'Photoshop', 
         icon: ImageIcon, 
         color: 'from-blue-600 to-purple-600',
         category: 'Design',
-        iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-plain.svg'
+        iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-original.svg'
     },
     { 
         name: 'Premiere Pro', 
@@ -326,14 +326,14 @@ const skills = [
         icon: Network, 
         color: 'from-pink-500 to-purple-600',
         category: 'API',
-        iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rest/rest-plain.svg'
+        iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rest/rest-original.svg'
     },
     {   
         name: 'Firebase', 
         icon: Flame, 
         color: 'from-yellow-500 to-orange-600',
         category: 'Backend',
-        iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg'
+        iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-original.svg'
     },
     { 
         name: 'Prisma', 
@@ -368,7 +368,7 @@ const skills = [
         icon: Terminal, 
         color: 'from-orange-500 to-red-600',
         category: 'OS',
-        iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ubuntu/ubuntu-plain.svg'
+        iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ubuntu/ubuntu-original.svg'
     },
     { 
         name: 'Postman', 
@@ -393,30 +393,8 @@ const skills = [
     }
 ];
 
-// Enhanced skills component with real logos and better organization
+// Clean and simple skills component
 const SkillsSection = () => {
-    const [visibleSkills, setVisibleSkills] = useState(0);
-
-    useEffect(() => {
-        // Animate skills visibility with staggered effect
-        const timer = setTimeout(() => {
-            setVisibleSkills(skills.length);
-        }, 100);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Group skills by category
-    const skillsByCategory = skills.reduce((acc, skill) => {
-        if (!acc[skill.category]) {
-            acc[skill.category] = [];
-        }
-        acc[skill.category].push(skill);
-        return acc;
-    }, {} as Record<string, typeof skills>);
-
-    const categories = Object.keys(skillsByCategory);
-
     return (
         <section className="py-20 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
             <div className="text-center mb-16">
@@ -428,212 +406,76 @@ const SkillsSection = () => {
                 </p>
             </div>
 
-            {/* Category-wise Skills Display */}
-            <div className="space-y-16">
-                {categories.map((category, categoryIndex) => (
-                    <div key={category} className="space-y-8">
-                        <div className="text-center">
-                            <h3 className="text-3xl font-bold text-white mb-2">{category}</h3>
-                            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full" />
+            {/* Simple Grid Layout */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-8">
+                {skills.map((skill, index) => (
+                    <motion.div
+                        key={skill.name}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{
+                            duration: 0.5,
+                            delay: index * 0.05,
+                            ease: "easeOut"
+                        }}
+                        viewport={{ once: true }}
+                        className="group flex flex-col items-center space-y-3 p-4 rounded-xl hover:bg-gray-800/30 transition-colors duration-300"
+                    >
+                        {/* Icon Container */}
+                        <div className="relative p-3 rounded-lg bg-gray-800/50 group-hover:bg-gray-700/50 transition-colors duration-300">
+                            <img
+                                src={skill.iconUrl}
+                                alt={skill.name}
+                                className="h-10 w-10 object-contain"
+                                style={{
+                                    filter: skill.name === 'Next.js' || skill.name === 'GitHub' || skill.name === 'GitHub Actions'
+                                        ? 'invert(1)'
+                                        : 'none'
+                                }}
+                                onError={(e) => {
+                                    // Fallback to Lucide icon if image fails to load
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                }}
+                            />
+                            {/* Fallback Lucide icon */}
+                            <skill.icon className="h-10 w-10 text-gray-400 hidden" />
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
-                            {skillsByCategory[category].map((skill, index) => (
-                                <motion.div
-                                    key={skill.name}
-                                    initial={{
-                                        opacity: 0,
-                                        scale: 0.5,
-                                        rotateY: -90,
-                                        y: 50
-                                    }}
-                                    whileInView={{
-                                        opacity: 1,
-                                        scale: 1,
-                                        rotateY: 0,
-                                        y: 0
-                                    }}
-                                    transition={{
-                                        duration: 0.8,
-                                        delay: (categoryIndex * 0.2) + (index * 0.1),
-                                        ease: [0.25, 0.46, 0.45, 0.94],
-                                        type: "spring",
-                                        stiffness: 100
-                                    }}
-                                    viewport={{ once: true }}
-                                    className="group relative"
-                                >
-                                    <motion.div
-                                        animate={{
-                                            y: [0, -10, 0],
-                                        }}
-                                        transition={{
-                                            duration: 3 + (index * 0.5),
-                                            repeat: Infinity,
-                                            ease: "easeInOut",
-                                            delay: index * 0.2
-                                        }}
-                                        className="relative"
-                                    >
-                                        <div className="relative bg-gradient-to-br from-gray-900/60 to-gray-800/40 backdrop-blur-sm border border-gray-700/60 rounded-2xl p-6 hover:border-gray-600/70 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-3 overflow-hidden group">
-                                            {/* Background Pattern */}
-                                            <div className="absolute inset-0 opacity-10">
-                                                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-transparent via-white/5 to-transparent transform rotate-12 scale-150" />
-                                            </div>
-
-                                            {/* Logo/Icon Container */}
-                                            <div className="flex flex-col items-center space-y-4 relative z-10">
-                                                <motion.div
-                                                    className="relative p-4 rounded-xl bg-white shadow-lg group-hover:shadow-2xl transition-all duration-500 group-hover:scale-125 group-hover:rotate-6"
-                                                    whileHover={{
-                                                        rotate: [0, -10, 10, 0],
-                                                        transition: { duration: 0.5 }
-                                                    }}
-                                                >
-                                                    {/* Real logo image */}
-                                                    <img 
-                                                        src={skill.iconUrl} 
-                                                        alt={skill.name}
-                                                        className="h-8 w-8 object-contain"
-                                                        style={{
-                                                            filter: skill.name === 'Next.js' || skill.name === 'GitHub' || skill.name === 'GitHub Actions' 
-                                                                ? 'invert(1)' 
-                                                                : 'none'
-                                                        }}
-                                                        onError={(e) => {
-                                                            // Fallback to Lucide icon if image fails to load
-                                                            e.currentTarget.style.display = 'none';
-                                                            e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                                                        }}
-                                                    />
-                                                    {/* Fallback Lucide icon */}
-                                                    <skill.icon className="h-8 w-8 text-gray-800 hidden" />
-                                                </motion.div>
-
-                                                {/* Skill Name */}
-                                                <div className="text-center">
-                                                    <motion.h4
-                                                        className="font-semibold text-white text-sm group-hover:text-blue-400 transition-colors duration-300"
-                                                        initial={{ opacity: 0 }}
-                                                        whileInView={{ opacity: 1 }}
-                                                        transition={{ delay: (categoryIndex * 0.2) + (index * 0.1) + 0.5 }}
-                                                        viewport={{ once: true }}
-                                                    >
-                                                        {skill.name}
-                                                    </motion.h4>
-                                                </div>
-                                            </div>
-
-                                            {/* Enhanced Hover Glow Effect */}
-                                            <motion.div
-                                                className={`absolute inset-0 bg-gradient-to-r ${skill.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-300`}
-                                            />
-
-                                            {/* Particle Effect on Hover */}
-                                            <motion.div
-                                                className="absolute inset-0 pointer-events-none"
-                                                initial={{ opacity: 0 }}
-                                                whileHover={{ opacity: 1 }}
-                                            >
-                                                {[...Array(6)].map((_, i) => (
-                                                    <motion.div
-                                                        key={i}
-                                                        className="absolute w-1 h-1 bg-blue-400 rounded-full"
-                                                        initial={{
-                                                            opacity: 0,
-                                                            scale: 0,
-                                                            x: "50%",
-                                                            y: "50%"
-                                                        }}
-                                                        animate={{
-                                                            opacity: [0, 1, 0],
-                                                            scale: [0, 1, 0],
-                                                            x: ["50%", `${30 + Math.random() * 40}%`],
-                                                            y: ["50%", `${30 + Math.random() * 40}%`],
-                                                        }}
-                                                        transition={{
-                                                            duration: 2,
-                                                            repeat: Infinity,
-                                                            delay: i * 0.2,
-                                                            ease: "easeOut"
-                                                        }}
-                                                    />
-                                                ))}
-                                            </motion.div>
-                                        </div>
-                                    </motion.div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
+                        {/* Skill Name */}
+                        <h4 className="font-medium text-white text-sm text-center group-hover:text-blue-400 transition-colors duration-300">
+                            {skill.name}
+                        </h4>
+                    </motion.div>
                 ))}
             </div>
 
-            {/* Enhanced Stats Footer */}
-            <motion.div
-                initial={{ opacity: 0, y: 50, scale: 0.8 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                    duration: 1,
-                    delay: 0.6,
-                    type: "spring",
-                    stiffness: 100
-                }}
-                viewport={{ once: true }}
-                className="mt-20 text-center"
-            >
-                <motion.div
-                    className="inline-flex items-center gap-8 bg-gradient-to-r from-gray-900/60 to-gray-800/40 backdrop-blur-sm border border-gray-700/60 rounded-full px-10 py-6 shadow-2xl"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                >
-                    <div className="flex items-center gap-3">
-                        <motion.div
-                            className="w-3 h-3 bg-green-500 rounded-full"
-                            animate={{
-                                scale: [1, 1.2, 1],
-                                opacity: [1, 0.7, 1]
-                            }}
-                            transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                        />
+            {/* Simple Stats Footer */}
+            <div className="mt-20 text-center">
+                <div className="inline-flex items-center gap-8 bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-full px-8 py-4">
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                         <span className="text-sm font-medium text-white">
-                            {skills.length}+ Technologies
+                            {skills.length} Technologies
                         </span>
                     </div>
 
-                    <div className="w-px h-8 bg-gradient-to-b from-transparent via-gray-500 to-transparent" />
+                    <div className="w-px h-6 bg-gray-600" />
 
-                    <div className="text-left">
-                        <p className="text-sm font-medium text-white">
-                            {categories.length} Categories
-                        </p>
-                        <p className="text-xs text-gray-400">
-                            Full-stack expertise
-                        </p>
+                    <div className="text-sm font-medium text-white">
+                        Full-Stack Developer
                     </div>
 
-                    <div className="w-px h-8 bg-gradient-to-b from-transparent via-gray-500 to-transparent" />
+                    <div className="w-px h-6 bg-gray-600" />
 
-                    <div className="text-left">
-                        <motion.p
-                            className="text-sm font-medium text-white"
-                            whileHover={{ color: "#60a5fa" }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            Always Learning
-                        </motion.p>
-                        <p className="text-xs text-gray-400">
-                            New technologies every day
-                        </p>
+                    <div className="text-sm font-medium text-white">
+                        Always Learning
                     </div>
-                </motion.div>
-            </motion.div>
+                </div>
+            </div>
         </section>
     );
 };
 
 export default SkillsSection;
+

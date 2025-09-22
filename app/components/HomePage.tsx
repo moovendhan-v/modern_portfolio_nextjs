@@ -27,6 +27,7 @@ import {
     Cloud,
     HardDrive,
     Workflow,
+    Box,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -63,6 +64,7 @@ const ICONS = Object.freeze({
     Workflow: Workflow,
     Github: Github,
     FileCode: FileCode,
+    Box: Box,
 
     // Common service names (case-insensitive mapping)
     WebDevelopment: Globe,
@@ -73,6 +75,14 @@ const ICONS = Object.freeze({
     UIUX: Palette,
     ContentCreation: Video,
     Consulting: Code,
+    AWS: Cloud,
+    CloudFormation: Cloud,
+    CodePipeline: Workflow,
+    ECS: Box,
+    ECR: Box,
+    Lambda: Workflow,
+    Textract: FileCode,
+    Backup: HardDrive,
 });
 
 interface IconComponents {
@@ -322,14 +332,14 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                                             onMouseEnter={() => setHoveredService(index)}
                                             onMouseLeave={() => setHoveredService(null)}
                                         >
-                                            <div className="relative h-[400px] group overflow-hidden rounded-2xl">
+                                            <div className="relative h-[400px] group overflow-hidden rounded-2xl transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-blue-500/20 group-hover:ring-2 group-hover:ring-blue-500/30">
                                                 <Image
                                                     src={service.image}
                                                     alt={service.title}
                                                     fill
                                                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent transition-opacity duration-300" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent transition-all duration-300 group-hover:from-black/60 group-hover:via-black/30" />
                                                 <div className="absolute inset-0 p-8 flex flex-col justify-end">
                                                     <div className="transform transition-transform duration-500 translate-y-4 group-hover:translate-y-0">
                                                         <div className="flex items-center gap-3 mb-4">

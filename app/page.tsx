@@ -16,6 +16,9 @@ export default async function Page() {
     const testimonials: Testimonial[] = await testimonialsResponse.json();
     const services: Service[] = await servicesResponse.json();
 
+    console.log("TESTIMONIALS:::", testimonials);
+    console.log("SERVICES:::", services);
+
     if (!Array.isArray(testimonials) || !Array.isArray(services)) {
       console.error('Invalid testimonials or services data');
       return <HomePage testimonials={[]} services={[]} />;
