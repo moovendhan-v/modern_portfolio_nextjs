@@ -24,6 +24,9 @@ import {
     Camera,
     Film,
     Wand2,
+    Cloud,
+    HardDrive,
+    Workflow,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -34,68 +37,152 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
 import type { Testimonial, Service } from '@/lib/types';
 import { BlogModal } from '@/app/blogs/BlogModal';
+import SkillsSection from './Skills';
 
 // Map icon names to components
 const ICONS = Object.freeze({
+    // Original icons
     Code: Code,
     Youtube: Youtube,
     Video: Video,
+
+    // Technology icons
+    Globe: Globe,
+    Database: Database,
+    Cpu: Cpu,
+    Palette: Palette,
+    Server: Server,
+    Monitor: Monitor,
+    Layers: Layers,
+    Zap: Zap,
+    Camera: Camera,
+    Film: Film,
+    Wand2: Wand2,
+    Cloud: Cloud,
+    HardDrive: HardDrive,
+    Workflow: Workflow,
+    Github: Github,
+    FileCode: FileCode,
+
+    // Common service names (case-insensitive mapping)
+    WebDevelopment: Globe,
+    MobileDevelopment: Monitor,
+    CloudServices: Cloud,
+    DatabaseDesign: Database,
+    DevOps: Server,
+    UIUX: Palette,
+    ContentCreation: Video,
+    Consulting: Code,
 });
 
 interface IconComponents {
     [key: string]: React.ComponentType;
 }
 
-const getIconComponent = (iconName: string): React.ComponentType<{ className?: string }> => {
-    return (ICONS as IconComponents)[iconName] || Code; // Default to Code if not found
+const getIconComponent = (iconName: string, serviceTitle?: string): React.ComponentType<{ className?: string }> => {
+    // If iconName is provided and exists, use it
+    if (iconName && (ICONS as IconComponents)[iconName]) {
+        return (ICONS as IconComponents)[iconName];
+    }
+
+    // Try case-insensitive match for iconName
+    if (iconName) {
+        const lowerIconName = iconName.toLowerCase();
+        for (const [key, component] of Object.entries(ICONS)) {
+            if (key.toLowerCase() === lowerIconName) {
+                return component;
+            }
+        }
+    }
+
+    // If no iconName or not found, try to infer from service title
+    if (serviceTitle) {
+        const lowerTitle = serviceTitle.toLowerCase();
+
+        if (lowerTitle.includes('security') || lowerTitle.includes('🔐')) {
+            return Database; // Shield-like icon for security
+        }
+        if (lowerTitle.includes('cloud') || lowerTitle.includes('☁️') || lowerTitle.includes('aws')) {
+            return Cloud;
+        }
+        if (lowerTitle.includes('full-stack') || lowerTitle.includes('⚡') || lowerTitle.includes('development')) {
+            return Code;
+        }
+        if (lowerTitle.includes('web')) {
+            return Globe;
+        }
+        if (lowerTitle.includes('mobile')) {
+            return Monitor;
+        }
+        if (lowerTitle.includes('database') || lowerTitle.includes('data')) {
+            return Database;
+        }
+        if (lowerTitle.includes('design') || lowerTitle.includes('ui') || lowerTitle.includes('ux')) {
+            return Palette;
+        }
+        if (lowerTitle.includes('video') || lowerTitle.includes('content')) {
+            return Video;
+        }
+        if (lowerTitle.includes('consulting')) {
+            return Code;
+        }
+    }
+
+    // Try partial matches for common patterns in iconName
+    if (iconName) {
+        const lowerIconName = iconName.toLowerCase();
+        if (lowerIconName.includes('web') || lowerIconName.includes('development')) {
+            return Globe;
+        }
+        if (lowerIconName.includes('mobile') || lowerIconName.includes('app')) {
+            return Monitor;
+        }
+        if (lowerIconName.includes('cloud') || lowerIconName.includes('aws')) {
+            return Cloud;
+        }
+        if (lowerIconName.includes('database') || lowerIconName.includes('data')) {
+            return Database;
+        }
+        if (lowerIconName.includes('design') || lowerIconName.includes('ui') || lowerIconName.includes('ux')) {
+            return Palette;
+        }
+        if (lowerIconName.includes('video') || lowerIconName.includes('content')) {
+            return Video;
+        }
+    }
+
+    // Default fallback
+    return Code;
 };
 
-const skills = {
-    webDevelopment: {
-        title: 'Web Development',
-        icon: Globe,
-        color: 'from-blue-500 to-cyan-500',
-        skills: [
-            { name: 'HTML & CSS', value: 90, icon: FileCode },
-            { name: 'JavaScript', value: 85, icon: Zap },
-            { name: 'React/Next.js', value: 80, icon: Code },
-            { name: 'Node.js', value: 75, icon: Server },
-        ]
-    },
-    programming: {
-        title: 'Programming',
-        icon: Cpu,
-        color: 'from-green-500 to-emerald-500',
-        skills: [
-            { name: 'PHP', value: 80, icon: Code },
-            { name: 'Python', value: 60, icon: Cpu },
-            { name: 'C/C++', value: 70, icon: Monitor },
-            { name: 'TypeScript', value: 75, icon: FileCode },
-        ]
-    },
-    database: {
-        title: 'Database',
-        icon: Database,
-        color: 'from-purple-500 to-pink-500',
-        skills: [
-            { name: 'MySQL', value: 85, icon: Database },
-            { name: 'MongoDB', value: 70, icon: Database },
-            { name: 'PostgreSQL', value: 75, icon: Database },
-            { name: 'Redis', value: 65, icon: Server },
-        ]
-    },
-    design: {
-        title: 'Design & Media',
-        icon: Palette,
-        color: 'from-orange-500 to-red-500',
-        skills: [
-            { name: 'Photoshop', value: 85, icon: Palette },
-            { name: 'Premiere Pro', value: 80, icon: Film },
-            { name: 'After Effects', value: 75, icon: Wand2 },
-            { name: 'Figma/XD', value: 70, icon: Layers },
-        ]
-    },
-};
+const skills = [
+    { name: 'HTML', icon: FileCode, color: 'from-orange-500 to-red-500' },
+    { name: 'CSS', icon: Palette, color: 'from-blue-500 to-cyan-500' },
+    { name: 'JavaScript', icon: Zap, color: 'from-yellow-500 to-orange-500' },
+    { name: 'TypeScript', icon: FileCode, color: 'from-blue-600 to-blue-800' },
+    { name: 'React', icon: Code, color: 'from-blue-500 to-cyan-500' },
+    { name: 'Next.js', icon: Globe, color: 'from-gray-700 to-gray-900' },
+    { name: 'Node.js', icon: Server, color: 'from-green-500 to-emerald-500' },
+    { name: 'Python', icon: Cpu, color: 'from-green-600 to-blue-600' },
+    { name: 'PHP', icon: Code, color: 'from-purple-500 to-pink-500' },
+    { name: 'AWS EC2', icon: Cloud, color: 'from-orange-600 to-yellow-600' },
+    { name: 'AWS S3', icon: HardDrive, color: 'from-orange-500 to-red-500' },
+    { name: 'AWS Lambda', icon: Workflow, color: 'from-orange-700 to-red-700' },
+    { name: 'AWS RDS', icon: Database, color: 'from-blue-700 to-blue-900' },
+    { name: 'AWS CloudFront', icon: Cloud, color: 'from-orange-500 to-yellow-500' },
+    { name: 'MySQL', icon: Database, color: 'from-blue-800 to-indigo-900' },
+    { name: 'MongoDB', icon: Database, color: 'from-green-700 to-green-900' },
+    { name: 'PostgreSQL', icon: Database, color: 'from-blue-800 to-indigo-900' },
+    { name: 'Redis', icon: Server, color: 'from-red-500 to-pink-600' },
+    { name: 'Docker', icon: Server, color: 'from-blue-700 to-cyan-700' },
+    { name: 'Kubernetes', icon: Server, color: 'from-blue-600 to-purple-600' },
+    { name: 'Git', icon: Code, color: 'from-orange-700 to-red-700' },
+    { name: 'GitHub', icon: Github, color: 'from-gray-700 to-gray-900' },
+    { name: 'Photoshop', icon: Palette, color: 'from-blue-600 to-purple-600' },
+    { name: 'Premiere Pro', icon: Film, color: 'from-purple-600 to-pink-600' },
+    { name: 'After Effects', icon: Wand2, color: 'from-purple-700 to-purple-900' },
+    { name: 'Figma', icon: Layers, color: 'from-pink-500 to-rose-500' },
+];
 
 interface HomePageProps {
     testimonials: Testimonial[];
@@ -114,14 +201,7 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
     const [hoveredService, setHoveredService] = useState<number | null>(null);
     const [selectedTestimonial, setSelectedTestimonial] = useState<number | null>(null);
     const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
-    const [progressValues, setProgressValues] = useState<Record<string, number[]>>(() => {
-        return Object.fromEntries(
-            Object.entries(skills).map(([key, category]) => [
-                key,
-                category.skills.map(() => 0),
-            ])
-        );
-    });
+    const [visibleSkills, setVisibleSkills] = useState<number>(0);
 
     const scrollPrevTestimonial = useCallback(
         () => testimonialApi?.scrollPrev(),
@@ -153,16 +233,9 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
     }, [testimonialApi, servicesApi]);
 
     useEffect(() => {
-        // Animate progress bars on mount
+        // Animate skills visibility
         const timer = setTimeout(() => {
-            setProgressValues(
-                Object.fromEntries(
-                    Object.entries(skills).map(([key, category]) => [
-                        key,
-                        category.skills.map((skill) => skill.value),
-                    ])
-                )
-            );
+            setVisibleSkills(skills.length);
         }, 500);
 
         return () => clearTimeout(timer);
@@ -242,7 +315,6 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                             <div className="flex">
                                 {services.map((service, index) => {
                                     const Icon = getIconComponent(service.icon as unknown as string);
-                                    console.log("Icon", service.icon);
                                     return (
                                         <div
                                             key={index}
@@ -423,135 +495,8 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                 </section>
             )}
 
-            {/* Skills Section - MacBook Style */}
-            <section className="py-20 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
-                <div className="text-center mb-16">
-                    <h2 className="text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
-                        Technical Skills
-                    </h2>
-                    <p className="text-gray-400 text-lg">
-                        A comprehensive overview of my technical expertise and proficiency levels
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {Object.entries(skills).map(([categoryKey, category], categoryIndex) => {
-                        const CategoryIcon = category.icon;
-                        return (
-                            <motion.div
-                                key={categoryKey}
-                                initial={{ opacity: 0, y: 50 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: categoryIndex * 0.2 }}
-                                viewport={{ once: true }}
-                                className="group"
-                            >
-                                <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 hover:border-gray-600/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10">
-                                    {/* Category Header */}
-                                    <div className="flex items-center gap-4 mb-8">
-                                        <div className={`p-4 rounded-xl bg-gradient-to-r ${category.color} shadow-lg`}>
-                                            <CategoryIcon className="h-8 w-8 text-white" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-2xl font-bold text-white">{category.title}</h3>
-                                            <p className="text-gray-400 text-sm">Professional proficiency levels</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Skills Grid */}
-                                    <div className="space-y-6">
-                                        {category.skills.map((skill, skillIndex) => {
-                                            const SkillIcon = skill.icon;
-                                            return (
-                                                <motion.div
-                                                    key={skill.name}
-                                                    initial={{ opacity: 0, x: -20 }}
-                                                    whileInView={{ opacity: 1, x: 0 }}
-                                                    transition={{ duration: 0.5, delay: (categoryIndex * 0.2) + (skillIndex * 0.1) }}
-                                                    viewport={{ once: true }}
-                                                    className="group/skill"
-                                                >
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="p-2 bg-gray-800/50 rounded-lg group-hover/skill:bg-gray-700/50 transition-colors">
-                                                                <SkillIcon className="h-4 w-4 text-gray-400 group-hover/skill:text-white transition-colors" />
-                                                            </div>
-                                                            <span className="font-medium text-gray-200 group-hover/skill:text-white transition-colors">
-                                                                {skill.name}
-                                                            </span>
-                                                        </div>
-                                                        <span className="text-sm font-semibold text-blue-400">
-                                                            {progressValues[categoryKey]?.[skillIndex] || 0}%
-                                                        </span>
-                                                    </div>
-
-                                                    {/* Progress Bar */}
-                                                    <div className="relative">
-                                                        <div className="w-full h-2 bg-gray-700/50 rounded-full overflow-hidden">
-                                                            <motion.div
-                                                                initial={{ width: 0 }}
-                                                                whileInView={{ width: `${skill.value}%` }}
-                                                                transition={{
-                                                                    duration: 2,
-                                                                    delay: (categoryIndex * 0.2) + (skillIndex * 0.1) + 0.3,
-                                                                    ease: 'easeInOut'
-                                                                }}
-                                                                viewport={{ once: true }}
-                                                                className={`h-full bg-gradient-to-r ${category.color} rounded-full shadow-sm`}
-                                                            />
-                                                        </div>
-                                                        {/* Glow effect */}
-                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-full opacity-0 group-hover/skill:opacity-100 transition-opacity duration-300" />
-                                                    </div>
-                                                </motion.div>
-                                            );
-                                        })}
-                                    </div>
-
-                                    {/* Category Stats */}
-                                    <div className="mt-8 pt-6 border-t border-gray-700/30">
-                                        <div className="flex items-center justify-between text-sm">
-                                            <span className="text-gray-400">Average Proficiency</span>
-                                            <span className="font-semibold text-white">
-                                                {Math.round(category.skills.reduce((acc, skill) => acc + skill.value, 0) / category.skills.length)}%
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
-                </div>
-
-                {/* MacBook-style Footer */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.6 }}
-                    viewport={{ once: true }}
-                    className="mt-16 text-center"
-                >
-                    <div className="inline-flex items-center gap-4 bg-gradient-to-r from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-full px-8 py-4">
-                        <div className="flex -space-x-2">
-                            {Object.values(skills).slice(0, 4).map((category, index) => {
-                                const Icon = category.icon;
-                                return (
-                                    <div
-                                        key={index}
-                                        className={`p-2 rounded-full bg-gradient-to-r ${category.color} shadow-lg`}
-                                    >
-                                        <Icon className="h-4 w-4 text-white" />
-                                    </div>
-                                );
-                            })}
-                        </div>
-                        <div className="text-left">
-                            <p className="text-sm font-medium text-white">Always Learning</p>
-                            <p className="text-xs text-gray-400">Continuous skill development</p>
-                        </div>
-                    </div>
-                </motion.div>
-            </section>
+            {/* Skills Section - Technology Icons */}
+            <SkillsSection />
 
             {/* Testimonial Modal */}
             <Dialog open={selectedTestimonial !== null} onOpenChange={() => setSelectedTestimonial(null)}>

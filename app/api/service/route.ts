@@ -16,6 +16,8 @@ export async function GET() {
             database_id: NOTION_SERVICE_DATABASE_ID
         });
 
+        console.log("Service response", response);
+
         const testimonials = response.results.map((page: any) => ({
             title: page.properties.serviceName?.title[0]?.plain_text || 'Anonymous',
             description: page.properties.descritions?.rich_text[0]?.plain_text || '',

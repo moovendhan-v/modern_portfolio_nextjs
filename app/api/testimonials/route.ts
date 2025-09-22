@@ -22,6 +22,8 @@ export async function GET() {
       ]
     });
 
+    console.log("Testimonials response", response);
+
     const testimonials = response.results.map((page: any) => ({
       id: page.id,
       name: page.properties.client_name?.rich_text[0]?.plain_text || 'Anonymous',
