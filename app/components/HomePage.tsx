@@ -12,6 +12,18 @@ import {
     ChevronRight,
     Star,
     X,
+    Database,
+    Palette,
+    Cpu,
+    Globe,
+    FileCode,
+    Server,
+    Monitor,
+    Layers,
+    Zap,
+    Camera,
+    Film,
+    Wand2,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -39,30 +51,50 @@ const getIconComponent = (iconName: string): React.ComponentType<{ className?: s
 };
 
 const skills = {
-    webDevelopment: [
-        { name: 'HTML and CSS', value: 80 },
-        { name: 'JavaScript', value: 70 },
-        { name: 'PHP', value: 70 },
-        { name: 'MySQL', value: 70 },
-    ],
-    programming: [
-        { name: 'PHP', value: 70 },
-        { name: 'JavaScript', value: 70 },
-        { name: 'Python', value: 20 },
-        { name: 'C', value: 30 },
-    ],
-    database: [
-        { name: 'MySQL', value: 70 },
-        { name: 'MongoDB', value: 10 },
-        { name: 'Redis', value: 10 },
-        { name: 'PostgreSQL', value: 5 },
-    ],
-    adobe: [
-        { name: 'Photoshop', value: 70 },
-        { name: 'Adobe XD', value: 40 },
-        { name: 'Premiere Pro', value: 80 },
-        { name: 'After Effects', value: 30 },
-    ],
+    webDevelopment: {
+        title: 'Web Development',
+        icon: Globe,
+        color: 'from-blue-500 to-cyan-500',
+        skills: [
+            { name: 'HTML & CSS', value: 90, icon: FileCode },
+            { name: 'JavaScript', value: 85, icon: Zap },
+            { name: 'React/Next.js', value: 80, icon: Code },
+            { name: 'Node.js', value: 75, icon: Server },
+        ]
+    },
+    programming: {
+        title: 'Programming',
+        icon: Cpu,
+        color: 'from-green-500 to-emerald-500',
+        skills: [
+            { name: 'PHP', value: 80, icon: Code },
+            { name: 'Python', value: 60, icon: Cpu },
+            { name: 'C/C++', value: 70, icon: Monitor },
+            { name: 'TypeScript', value: 75, icon: FileCode },
+        ]
+    },
+    database: {
+        title: 'Database',
+        icon: Database,
+        color: 'from-purple-500 to-pink-500',
+        skills: [
+            { name: 'MySQL', value: 85, icon: Database },
+            { name: 'MongoDB', value: 70, icon: Database },
+            { name: 'PostgreSQL', value: 75, icon: Database },
+            { name: 'Redis', value: 65, icon: Server },
+        ]
+    },
+    design: {
+        title: 'Design & Media',
+        icon: Palette,
+        color: 'from-orange-500 to-red-500',
+        skills: [
+            { name: 'Photoshop', value: 85, icon: Palette },
+            { name: 'Premiere Pro', value: 80, icon: Film },
+            { name: 'After Effects', value: 75, icon: Wand2 },
+            { name: 'Figma/XD', value: 70, icon: Layers },
+        ]
+    },
 };
 
 interface HomePageProps {
@@ -70,16 +102,6 @@ interface HomePageProps {
     services: Service[];
 }
 
-const AnimatedProgress = ({ value }: { value: number }) => (
-    <div className="w-full h-3 bg-gray-700 rounded-lg overflow-hidden">
-        <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${value}%` }}
-            transition={{ duration: 2, ease: 'easeInOut' }}
-            className="h-full bg-blue-600 rounded-lg"
-        />
-    </div>
-);
 
 export default function HomePage({ testimonials, services }: HomePageProps) {
     const [testimonialCarouselRef, testimonialApi] = useEmblaCarousel();
@@ -94,9 +116,9 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
     const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
     const [progressValues, setProgressValues] = useState<Record<string, number[]>>(() => {
         return Object.fromEntries(
-            Object.entries(skills).map(([key, items]) => [
+            Object.entries(skills).map(([key, category]) => [
                 key,
-                items.map(() => 0),
+                category.skills.map(() => 0),
             ])
         );
     });
@@ -135,9 +157,9 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
         const timer = setTimeout(() => {
             setProgressValues(
                 Object.fromEntries(
-                    Object.entries(skills).map(([key, items]) => [
+                    Object.entries(skills).map(([key, category]) => [
                         key,
-                        items.map((skill) => skill.value),
+                        category.skills.map((skill) => skill.value),
                     ])
                 )
             );
@@ -165,10 +187,10 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
 
                         <div className="flex gap-4">
                             <Button className="bg-blue-600 hover:bg-blue-700">
-                                <Code className="mr-2 h-4 w-4" /> Web developer
+                                <Code className="mr-2 h-4 w-4" /> Software Engineer
                             </Button>
                             <Button variant="outline">
-                                <Video className="mr-2 h-4 w-4" /> Video editor
+                                <Video className="mr-2 h-4 w-4" /> Content Creator
                             </Button>
                         </div>
                         <div className="flex gap-4 pt-4">
@@ -212,7 +234,7 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
             <section className="py-20 bg-gradient-to-b from-black to-blue-950">
                 <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
                     <h2 className="text-6xl font-bold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
-                        OUR SERVICES
+                        Expertise In
                     </h2>
 
                     <div className="relative">
@@ -291,10 +313,10 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                 <section className="py-20 bg-gradient-to-b from-blue-950 to-black">
                     <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
                         <h2 className="text-6xl font-bold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
-                            CLIENT TESTIMONIALS
+                            What People Say About Us
                         </h2>
                         <p className="text-center text-gray-400 mb-16">
-                            What Our Clients Say About Us
+                            Trusted by clients worldwide, here’s what they have to say.
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -401,32 +423,134 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                 </section>
             )}
 
-            {/* Skills Section with Animated Progress Bars */}
+            {/* Skills Section - MacBook Style */}
             <section className="py-20 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    {Object.entries(skills).map(([category, items]) => (
-                        <div key={category} className="space-y-6">
-                            <h2 className="text-2xl font-bold capitalize">
-                                {category.replace(/([A-Z])/g, ' $1').trim()}
-                            </h2>
-                            <div className="space-y-4">
-                                {items.map((skill, index) => (
-                                    <div key={skill.name} className="space-y-2">
-                                        <div className="flex justify-between">
-                                            <span>{skill.name}</span>
-                                            <span className="text-blue-400">
-                                                {progressValues[category]?.[index] || 0}%
-                                            </span>
+                <div className="text-center mb-16">
+                    <h2 className="text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+                        Technical Skills
+                    </h2>
+                    <p className="text-gray-400 text-lg">
+                        A comprehensive overview of my technical expertise and proficiency levels
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {Object.entries(skills).map(([categoryKey, category], categoryIndex) => {
+                        const CategoryIcon = category.icon;
+                        return (
+                            <motion.div
+                                key={categoryKey}
+                                initial={{ opacity: 0, y: 50 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6, delay: categoryIndex * 0.2 }}
+                                viewport={{ once: true }}
+                                className="group"
+                            >
+                                <div className="bg-gradient-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 hover:border-gray-600/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10">
+                                    {/* Category Header */}
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className={`p-4 rounded-xl bg-gradient-to-r ${category.color} shadow-lg`}>
+                                            <CategoryIcon className="h-8 w-8 text-white" />
                                         </div>
-                                        <div className="w-full h-3 bg-gray-700 rounded-lg overflow-hidden">
-                                            <AnimatedProgress value={skill.value} />
+                                        <div>
+                                            <h3 className="text-2xl font-bold text-white">{category.title}</h3>
+                                            <p className="text-gray-400 text-sm">Professional proficiency levels</p>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
+
+                                    {/* Skills Grid */}
+                                    <div className="space-y-6">
+                                        {category.skills.map((skill, skillIndex) => {
+                                            const SkillIcon = skill.icon;
+                                            return (
+                                                <motion.div
+                                                    key={skill.name}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    whileInView={{ opacity: 1, x: 0 }}
+                                                    transition={{ duration: 0.5, delay: (categoryIndex * 0.2) + (skillIndex * 0.1) }}
+                                                    viewport={{ once: true }}
+                                                    className="group/skill"
+                                                >
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="p-2 bg-gray-800/50 rounded-lg group-hover/skill:bg-gray-700/50 transition-colors">
+                                                                <SkillIcon className="h-4 w-4 text-gray-400 group-hover/skill:text-white transition-colors" />
+                                                            </div>
+                                                            <span className="font-medium text-gray-200 group-hover/skill:text-white transition-colors">
+                                                                {skill.name}
+                                                            </span>
+                                                        </div>
+                                                        <span className="text-sm font-semibold text-blue-400">
+                                                            {progressValues[categoryKey]?.[skillIndex] || 0}%
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Progress Bar */}
+                                                    <div className="relative">
+                                                        <div className="w-full h-2 bg-gray-700/50 rounded-full overflow-hidden">
+                                                            <motion.div
+                                                                initial={{ width: 0 }}
+                                                                whileInView={{ width: `${skill.value}%` }}
+                                                                transition={{
+                                                                    duration: 2,
+                                                                    delay: (categoryIndex * 0.2) + (skillIndex * 0.1) + 0.3,
+                                                                    ease: 'easeInOut'
+                                                                }}
+                                                                viewport={{ once: true }}
+                                                                className={`h-full bg-gradient-to-r ${category.color} rounded-full shadow-sm`}
+                                                            />
+                                                        </div>
+                                                        {/* Glow effect */}
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-full opacity-0 group-hover/skill:opacity-100 transition-opacity duration-300" />
+                                                    </div>
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {/* Category Stats */}
+                                    <div className="mt-8 pt-6 border-t border-gray-700/30">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-gray-400">Average Proficiency</span>
+                                            <span className="font-semibold text-white">
+                                                {Math.round(category.skills.reduce((acc, skill) => acc + skill.value, 0) / category.skills.length)}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
                 </div>
+
+                {/* MacBook-style Footer */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.6 }}
+                    viewport={{ once: true }}
+                    className="mt-16 text-center"
+                >
+                    <div className="inline-flex items-center gap-4 bg-gradient-to-r from-gray-900/50 to-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-full px-8 py-4">
+                        <div className="flex -space-x-2">
+                            {Object.values(skills).slice(0, 4).map((category, index) => {
+                                const Icon = category.icon;
+                                return (
+                                    <div
+                                        key={index}
+                                        className={`p-2 rounded-full bg-gradient-to-r ${category.color} shadow-lg`}
+                                    >
+                                        <Icon className="h-4 w-4 text-white" />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div className="text-left">
+                            <p className="text-sm font-medium text-white">Always Learning</p>
+                            <p className="text-xs text-gray-400">Continuous skill development</p>
+                        </div>
+                    </div>
+                </motion.div>
             </section>
 
             {/* Testimonial Modal */}
