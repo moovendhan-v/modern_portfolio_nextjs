@@ -129,11 +129,24 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
     }, [testimonialApi, servicesApi]);
 
     useEffect(() => {
-        const audio = new Audio('app/data/be333d4c-f4f2-4245-a9ee-5d6ff1f083b3.mp3');
+        const audio = new Audio();
+        // No need for crossOrigin with local files
+        
+        // If file is in: public/be333d4c-f4f2-4245-a9ee-5d6ff1f083b3.mp3
+        audio.src = '/cybertechmind.mp3';
+        
+        // If file is in: public/audio/be333d4c-f4f2-4245-a9ee-5d6ff1f083b3.mp3
+        // audio.src = '/audio/be333d4c-f4f2-4245-a9ee-5d6ff1f083b3.mp3';
+        
+        audio.preload = 'auto';
         setAudioRef(audio);
         
         audio.addEventListener('loadedmetadata', () => {
             setDuration(audio.duration);
+        });
+        
+        audio.addEventListener('canplaythrough', () => {
+            console.log('Audio is ready to play');
         });
         
         audio.addEventListener('timeupdate', () => {
@@ -160,11 +173,20 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
         const timer = setTimeout(() => {
             setIsMusicPlayerOpen(true);
             if (audioRef) {
-                audioRef.play().catch(error => {
-                    console.error('Playback failed:', error);
-                    setIsPlaying(false);
-                });
-                setIsPlaying(true);
+                // Try autoplay with proper error handling
+                const playPromise = audioRef.play();
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            setIsPlaying(true);
+                            console.log('Autoplay started successfully');
+                        })
+                        .catch(error => {
+                            console.warn('Autoplay was prevented:', error);
+                            // Autoplay blocked - user needs to click play
+                            setIsPlaying(false);
+                        });
+                }
             }
         }, 5000);
         return () => clearTimeout(timer);
