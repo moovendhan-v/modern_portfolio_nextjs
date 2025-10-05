@@ -28,26 +28,22 @@ import {
     HardDrive,
     Workflow,
     Box,
+    Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useState } from 'react';
-import { Sparkles } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
 import type { Testimonial, Service } from '@/lib/types';
 import { BlogModal } from '@/app/blogs/BlogModal';
 import SkillsSection from './Skills';
 
-// Map icon names to components
 const ICONS = Object.freeze({
-    // Original icons
     Code: Code,
     Youtube: Youtube,
     Video: Video,
-
-    // Technology icons
     Globe: Globe,
     Database: Database,
     Cpu: Cpu,
@@ -65,24 +61,6 @@ const ICONS = Object.freeze({
     Github: Github,
     FileCode: FileCode,
     Box: Box,
-
-    // Common service names (case-insensitive mapping)
-    WebDevelopment: Globe,
-    MobileDevelopment: Monitor,
-    CloudServices: Cloud,
-    DatabaseDesign: Database,
-    DevOps: Server,
-    UIUX: Palette,
-    ContentCreation: Video,
-    Consulting: Code,
-    AWS: Cloud,
-    CloudFormation: Cloud,
-    CodePipeline: Workflow,
-    ECS: Box,
-    ECR: Box,
-    Lambda: Workflow,
-    Textract: FileCode,
-    Backup: HardDrive,
 });
 
 interface IconComponents {
@@ -90,12 +68,9 @@ interface IconComponents {
 }
 
 const getIconComponent = (iconName: string, serviceTitle?: string): React.ComponentType<{ className?: string }> => {
-    // If iconName is provided and exists, use it
     if (iconName && (ICONS as IconComponents)[iconName]) {
         return (ICONS as IconComponents)[iconName];
     }
-
-    // Try case-insensitive match for iconName
     if (iconName) {
         const lowerIconName = iconName.toLowerCase();
         for (const [key, component] of Object.entries(ICONS)) {
@@ -104,152 +79,157 @@ const getIconComponent = (iconName: string, serviceTitle?: string): React.Compon
             }
         }
     }
-
-    // If no iconName or not found, try to infer from service title
     if (serviceTitle) {
         const lowerTitle = serviceTitle.toLowerCase();
-
-        if (lowerTitle.includes('security') || lowerTitle.includes('🔐')) {
-            return Database; // Shield-like icon for security
-        }
-        if (lowerTitle.includes('cloud') || lowerTitle.includes('☁️') || lowerTitle.includes('aws')) {
-            return Cloud;
-        }
-        if (lowerTitle.includes('full-stack') || lowerTitle.includes('⚡') || lowerTitle.includes('development')) {
-            return Code;
-        }
-        if (lowerTitle.includes('web')) {
-            return Globe;
-        }
-        if (lowerTitle.includes('mobile')) {
-            return Monitor;
-        }
-        if (lowerTitle.includes('database') || lowerTitle.includes('data')) {
-            return Database;
-        }
-        if (lowerTitle.includes('design') || lowerTitle.includes('ui') || lowerTitle.includes('ux')) {
-            return Palette;
-        }
-        if (lowerTitle.includes('video') || lowerTitle.includes('content')) {
-            return Video;
-        }
-        if (lowerTitle.includes('consulting')) {
-            return Code;
-        }
+        if (lowerTitle.includes('security') || lowerTitle.includes('🔐')) return Database;
+        if (lowerTitle.includes('cloud') || lowerTitle.includes('☁️') || lowerTitle.includes('aws')) return Cloud;
+        if (lowerTitle.includes('full-stack') || lowerTitle.includes('⚡') || lowerTitle.includes('development')) return Code;
+        if (lowerTitle.includes('web')) return Globe;
+        if (lowerTitle.includes('mobile')) return Monitor;
+        if (lowerTitle.includes('database') || lowerTitle.includes('data')) return Database;
+        if (lowerTitle.includes('design') || lowerTitle.includes('ui') || lowerTitle.includes('ux')) return Palette;
+        if (lowerTitle.includes('video') || lowerTitle.includes('content')) return Video;
+        if (lowerTitle.includes('consulting')) return Code;
     }
-
-    // Try partial matches for common patterns in iconName
-    if (iconName) {
-        const lowerIconName = iconName.toLowerCase();
-        if (lowerIconName.includes('web') || lowerIconName.includes('development')) {
-            return Globe;
-        }
-        if (lowerIconName.includes('mobile') || lowerIconName.includes('app')) {
-            return Monitor;
-        }
-        if (lowerIconName.includes('cloud') || lowerIconName.includes('aws')) {
-            return Cloud;
-        }
-        if (lowerIconName.includes('database') || lowerIconName.includes('data')) {
-            return Database;
-        }
-        if (lowerIconName.includes('design') || lowerIconName.includes('ui') || lowerIconName.includes('ux')) {
-            return Palette;
-        }
-        if (lowerIconName.includes('video') || lowerIconName.includes('content')) {
-            return Video;
-        }
-    }
-
-    // Default fallback
     return Code;
 };
-
-const skills = [
-    { name: 'HTML', icon: FileCode, color: 'from-orange-500 to-red-500' },
-    { name: 'CSS', icon: Palette, color: 'from-blue-500 to-cyan-500' },
-    { name: 'JavaScript', icon: Zap, color: 'from-yellow-500 to-orange-500' },
-    { name: 'TypeScript', icon: FileCode, color: 'from-blue-600 to-blue-800' },
-    { name: 'React', icon: Code, color: 'from-blue-500 to-cyan-500' },
-    { name: 'Next.js', icon: Globe, color: 'from-gray-700 to-gray-900' },
-    { name: 'Node.js', icon: Server, color: 'from-green-500 to-emerald-500' },
-    { name: 'Python', icon: Cpu, color: 'from-green-600 to-blue-600' },
-    { name: 'PHP', icon: Code, color: 'from-purple-500 to-pink-500' },
-    { name: 'AWS EC2', icon: Cloud, color: 'from-orange-600 to-yellow-600' },
-    { name: 'AWS S3', icon: HardDrive, color: 'from-orange-500 to-red-500' },
-    { name: 'AWS Lambda', icon: Workflow, color: 'from-orange-700 to-red-700' },
-    { name: 'AWS RDS', icon: Database, color: 'from-blue-700 to-blue-900' },
-    { name: 'AWS CloudFront', icon: Cloud, color: 'from-orange-500 to-yellow-500' },
-    { name: 'MySQL', icon: Database, color: 'from-blue-800 to-indigo-900' },
-    { name: 'MongoDB', icon: Database, color: 'from-green-700 to-green-900' },
-    { name: 'PostgreSQL', icon: Database, color: 'from-blue-800 to-indigo-900' },
-    { name: 'Redis', icon: Server, color: 'from-red-500 to-pink-600' },
-    { name: 'Docker', icon: Server, color: 'from-blue-700 to-cyan-700' },
-    { name: 'Kubernetes', icon: Server, color: 'from-blue-600 to-purple-600' },
-    { name: 'Git', icon: Code, color: 'from-orange-700 to-red-700' },
-    { name: 'GitHub', icon: Github, color: 'from-gray-700 to-gray-900' },
-    { name: 'Photoshop', icon: Palette, color: 'from-blue-600 to-purple-600' },
-    { name: 'Premiere Pro', icon: Film, color: 'from-purple-600 to-pink-600' },
-    { name: 'After Effects', icon: Wand2, color: 'from-purple-700 to-purple-900' },
-    { name: 'Figma', icon: Layers, color: 'from-pink-500 to-rose-500' },
-];
 
 interface HomePageProps {
     testimonials: Testimonial[];
     services: Service[];
 }
 
-
 export default function HomePage({ testimonials, services }: HomePageProps) {
     const [testimonialCarouselRef, testimonialApi] = useEmblaCarousel();
-    const [servicesCarouselRef, servicesApi] = useEmblaCarousel({
-        loop: true,
-        dragFree: true,
-    });
+    const [servicesCarouselRef, servicesApi] = useEmblaCarousel({ loop: true, dragFree: true });
     const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
     const [currentServicesIndex, setCurrentServicesIndex] = useState(0);
     const [hoveredService, setHoveredService] = useState<number | null>(null);
     const [selectedTestimonial, setSelectedTestimonial] = useState<number | null>(null);
     const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
     const [visibleSkills, setVisibleSkills] = useState<number>(0);
+    const [isMusicPlayerOpen, setIsMusicPlayerOpen] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
+    const [position, setPosition] = useState({ x: window.innerWidth - 280, y: window.innerHeight - 150 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
-    const scrollPrevTestimonial = useCallback(
-        () => testimonialApi?.scrollPrev(),
-        [testimonialApi]
-    );
-    const scrollNextTestimonial = useCallback(
-        () => testimonialApi?.scrollNext(),
-        [testimonialApi]
-    );
-    const scrollPrevServices = useCallback(
-        () => servicesApi?.scrollPrev(),
-        [servicesApi]
-    );
-    const scrollNextServices = useCallback(
-        () => servicesApi?.scrollNext(),
-        [servicesApi]
-    );
+    const scrollPrevTestimonial = useCallback(() => testimonialApi?.scrollPrev(), [testimonialApi]);
+    const scrollNextTestimonial = useCallback(() => testimonialApi?.scrollNext(), [testimonialApi]);
+    const scrollPrevServices = useCallback(() => servicesApi?.scrollPrev(), [servicesApi]);
+    const scrollNextServices = useCallback(() => servicesApi?.scrollNext(), [servicesApi]);
 
     useEffect(() => {
         if (!testimonialApi || !servicesApi) return;
-
-        testimonialApi.on('select', () => {
-            setCurrentTestimonialIndex(testimonialApi.selectedScrollSnap());
-        });
-
-        servicesApi.on('select', () => {
-            setCurrentServicesIndex(servicesApi.selectedScrollSnap());
-        });
+        testimonialApi.on('select', () => setCurrentTestimonialIndex(testimonialApi.selectedScrollSnap()));
+        servicesApi.on('select', () => setCurrentServicesIndex(servicesApi.selectedScrollSnap()));
     }, [testimonialApi, servicesApi]);
 
     useEffect(() => {
-        // Animate skills visibility
-        const timer = setTimeout(() => {
-            setVisibleSkills(skills.length);
-        }, 500);
+        const audio = new Audio('app/data/be333d4c-f4f2-4245-a9ee-5d6ff1f083b3.mp3');
+        setAudioRef(audio);
+        
+        audio.addEventListener('loadedmetadata', () => {
+            setDuration(audio.duration);
+        });
+        
+        audio.addEventListener('timeupdate', () => {
+            setCurrentTime(audio.currentTime);
+        });
+        
+        audio.addEventListener('ended', () => {
+            setIsPlaying(false);
+        });
 
-        return () => clearTimeout(timer);
+        audio.addEventListener('error', (e) => {
+            console.error('Audio loading error:', e);
+            console.error('Audio error code:', audio.error?.code);
+            console.error('Audio error message:', audio.error?.message);
+        });
+
+        return () => {
+            audio.pause();
+            audio.src = '';
+        };
     }, []);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsMusicPlayerOpen(true);
+            if (audioRef) {
+                audioRef.play().catch(error => {
+                    console.error('Playback failed:', error);
+                    setIsPlaying(false);
+                });
+                setIsPlaying(true);
+            }
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, [audioRef]);
+
+    const togglePlayPause = () => {
+        if (audioRef) {
+            if (isPlaying) {
+                audioRef.pause();
+                setIsPlaying(false);
+            } else {
+                audioRef.play().catch(error => {
+                    console.error('Playback failed:', error);
+                    setIsPlaying(false);
+                });
+                setIsPlaying(true);
+            }
+        }
+    };
+
+    const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const time = parseFloat(e.target.value);
+        if (audioRef) {
+            audioRef.currentTime = time;
+            setCurrentTime(time);
+        }
+    };
+
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        setIsDragging(true);
+        setDragOffset({
+            x: e.clientX - position.x,
+            y: e.clientY - position.y
+        });
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+        if (isDragging) {
+            setPosition({
+                x: e.clientX - dragOffset.x,
+                y: e.clientY - dragOffset.y
+            });
+        }
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    useEffect(() => {
+        if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging, dragOffset]);
 
     return (
         <main className="min-h-screen bg-black text-white">
@@ -263,11 +243,16 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                             <span className="text-blue-500">Moovendhan V,</span>
                         </h1>
                         <p className="text-lg text-gray-400">
-                            I'm <strong>Moovendhan</strong>, a passionate web engineer specializing in <strong>scalable, high-performance applications</strong>
+                            I'm <strong>Moovendhan</strong>, a passionate web engineer with a strong focus on
+                            <strong> Cybersecurity, AWS Cloud Development, and building scalable, high-performance applications</strong>.
                             <br />
-                            At <a href="https://cybertechmind.com" className="text-blue-500 font-medium hover:underline" target="_blank" rel="noopener noreferrer">CyberTechMind</a>, I simplify complex tech concepts, enhance online security awareness, and share real-world solutions. My mission is to empower tech enthusiasts and innovators with <strong>practical advice and honest recommendations</strong>.
+                            At <a href="https://cybertechmind.com" className="text-blue-500 font-medium hover:underline" target="_blank" rel="noopener noreferrer">
+                                CyberTechMind
+                            </a>, I explore secure cloud architectures, simplify complex tech concepts, and share real-world solutions to enhance
+                            <strong> online security, cloud best practices, and practical development insights</strong>.
+                            My mission is to empower tech enthusiasts and innovators with
+                            <strong> actionable guidance and honest recommendations</strong>.
                         </p>
-
                         <div className="flex gap-4">
                             <Button className="bg-blue-600 hover:bg-blue-700">
                                 <Code className="mr-2 h-4 w-4" /> Software Engineer
@@ -319,7 +304,6 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                     <h2 className="text-6xl font-bold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
                         Expertise In
                     </h2>
-
                     <div className="relative">
                         <div className="overflow-hidden" ref={servicesCarouselRef}>
                             <div className="flex">
@@ -359,30 +343,18 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                                 })}
                             </div>
                         </div>
-
-                        <button
-                            onClick={scrollPrevServices}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
-                        >
+                        <button onClick={scrollPrevServices} className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all">
                             <ChevronLeft className="w-6 h-6" />
                         </button>
-
-                        <button
-                            onClick={scrollNextServices}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
-                        >
+                        <button onClick={scrollNextServices} className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all">
                             <ChevronRight className="w-6 h-6" />
                         </button>
                     </div>
-
                     <div className="flex justify-center gap-2 mt-8">
                         {services.map((_, index) => (
                             <button
                                 key={index}
-                                className={`w-3 h-3 rounded-full transition-all ${index === currentServicesIndex
-                                    ? 'bg-blue-500 w-6'
-                                    : 'bg-gray-600 hover:bg-gray-500'
-                                    }`}
+                                className={`w-3 h-3 rounded-full transition-all ${index === currentServicesIndex ? 'bg-blue-500 w-6' : 'bg-gray-600 hover:bg-gray-500'}`}
                                 onClick={() => servicesApi?.scrollTo(index)}
                             />
                         ))}
@@ -390,7 +362,7 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                 </div>
             </section>
 
-            {/* Testimonials Section - Only show if we have testimonials */}
+            {/* Testimonials Section */}
             {testimonials.length > 0 && (
                 <section className="py-20 bg-gradient-to-b from-blue-950 to-black">
                     <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
@@ -398,50 +370,29 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                             What People Say About Us
                         </h2>
                         <p className="text-center text-gray-400 mb-16">
-                            Trusted by clients worldwide, here’s what they have to say.
+                            Trusted by clients worldwide, here's what they have to say.
                         </p>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {/* Featured Testimonial */}
                             <div className="h-[500px]">
                                 <div className="relative h-full">
                                     <div className="overflow-hidden h-full" ref={testimonialCarouselRef}>
                                         <div className="flex h-full">
                                             {testimonials.map((testimonial: Testimonial, index: number) => (
-                                                <div
-                                                    key={testimonial.id}
-                                                    className="flex-[0_0_100%] min-w-0"
-                                                >
+                                                <div key={testimonial.id} className="flex-[0_0_100%] min-w-0">
                                                     <div className="bg-black/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8 h-full flex flex-col">
                                                         <div className="flex items-center gap-4 mb-6">
-                                                            <Image
-                                                                src={testimonial.image}
-                                                                alt={testimonial.name}
-                                                                width={80}
-                                                                height={80}
-                                                                className="rounded-full"
-                                                            />
+                                                            <Image src={testimonial.image} alt={testimonial.name} width={80} height={80} className="rounded-full" />
                                                             <div>
-                                                                <h3 className="text-2xl font-semibold">
-                                                                    {testimonial.name}
-                                                                </h3>
+                                                                <h3 className="text-2xl font-semibold">{testimonial.name}</h3>
                                                                 <div className="flex gap-1">
                                                                     {[...Array(testimonial.rating)].map((_, i) => (
-                                                                        <Star
-                                                                            key={i}
-                                                                            className="w-4 h-4 fill-yellow-500 text-yellow-500"
-                                                                        />
+                                                                        <Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500" />
                                                                     ))}
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <p className="text-gray-400 italic flex-grow">
-                                                            {testimonial.text}
-                                                        </p>
-                                                        <Button
-                                                            onClick={() => setSelectedTestimonial(index)}
-                                                            className="mt-4 bg-blue-600 hover:bg-blue-700"
-                                                        >
+                                                        <p className="text-gray-400 italic flex-grow">{testimonial.text}</p>
+                                                        <Button onClick={() => setSelectedTestimonial(index)} className="mt-4 bg-blue-600 hover:bg-blue-700">
                                                             View Full Details
                                                         </Button>
                                                     </div>
@@ -449,24 +400,14 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                                             ))}
                                         </div>
                                     </div>
-
-                                    <button
-                                        onClick={scrollPrevTestimonial}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
-                                    >
+                                    <button onClick={scrollPrevTestimonial} className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all">
                                         <ChevronLeft className="w-6 h-6" />
                                     </button>
-
-                                    <button
-                                        onClick={scrollNextTestimonial}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all"
-                                    >
+                                    <button onClick={scrollNextTestimonial} className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500/20 hover:bg-blue-500/30 rounded-full p-2 backdrop-blur-sm transition-all">
                                         <ChevronRight className="w-6 h-6" />
                                     </button>
                                 </div>
                             </div>
-
-                            {/* Truncated Testimonials Grid */}
                             <div className="grid grid-cols-2 gap-4 h-[500px] overflow-y-auto pr-4 custom-scrollbar">
                                 {[...testimonials, ...testimonials].map((testimonial: Testimonial, index) => (
                                     <div
@@ -475,28 +416,17 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                                         onClick={() => setSelectedTestimonial(index % testimonials.length)}
                                     >
                                         <div className="flex items-center gap-2 mb-2">
-                                            <Image
-                                                src={testimonial.image}
-                                                alt={testimonial.name}
-                                                width={40}
-                                                height={40}
-                                                className="rounded-full"
-                                            />
+                                            <Image src={testimonial.image} alt={testimonial.name} width={40} height={40} className="rounded-full" />
                                             <div>
                                                 <h4 className="font-medium">{testimonial.name}</h4>
                                                 <div className="flex gap-1">
                                                     {[...Array(testimonial.rating)].map((_, i) => (
-                                                        <Star
-                                                            key={i}
-                                                            className="w-3 h-3 fill-yellow-500 text-yellow-500"
-                                                        />
+                                                        <Star key={i} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
                                                     ))}
                                                 </div>
                                             </div>
                                         </div>
-                                        <p className="text-sm text-gray-400 line-clamp-3">
-                                            {testimonial.text}
-                                        </p>
+                                        <p className="text-sm text-gray-400 line-clamp-3">{testimonial.text}</p>
                                     </div>
                                 ))}
                             </div>
@@ -505,7 +435,6 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                 </section>
             )}
 
-            {/* Skills Section - Technology Icons */}
             <SkillsSection />
 
             {/* Testimonial Modal */}
@@ -513,38 +442,22 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                 <DialogContent className="max-w-2xl bg-black/90 border-white/10">
                     {selectedTestimonial !== null && (
                         <div className="relative p-6">
-                            <button
-                                onClick={() => setSelectedTestimonial(null)}
-                                className="absolute top-2 right-2 p-2 rounded-full hover:bg-white/10 transition-colors"
-                            >
+                            <button onClick={() => setSelectedTestimonial(null)} className="absolute top-2 right-2 p-2 rounded-full hover:bg-white/10 transition-colors">
                                 <X className="w-6 h-6" />
                             </button>
                             <div className="flex items-center gap-4 mb-6">
-                                <Image
-                                    src={testimonials[selectedTestimonial].image}
-                                    alt={testimonials[selectedTestimonial].name}
-                                    width={100}
-                                    height={100}
-                                    className="rounded-full"
-                                />
+                                <Image src={testimonials[selectedTestimonial].image} alt={testimonials[selectedTestimonial].name} width={100} height={100} className="rounded-full" />
                                 <div>
-                                    <h3 className="text-2xl font-semibold">
-                                        {testimonials[selectedTestimonial].name}
-                                    </h3>
+                                    <h3 className="text-2xl font-semibold">{testimonials[selectedTestimonial].name}</h3>
                                     <div className="flex gap-1">
                                         {[...Array(testimonials[selectedTestimonial].rating)].map((_, i) => (
-                                            <Star
-                                                key={i}
-                                                className="w-5 h-5 fill-yellow-500 text-yellow-500"
-                                            />
+                                            <Star key={i} className="w-5 h-5 fill-yellow-500 text-yellow-500" />
                                         ))}
                                     </div>
                                 </div>
                             </div>
                             <div className="space-y-4">
-                                <p className="text-gray-300 leading-relaxed">
-                                    {testimonials[selectedTestimonial].text}
-                                </p>
+                                <p className="text-gray-300 leading-relaxed">{testimonials[selectedTestimonial].text}</p>
                                 <div className="pt-4 border-t border-white/10">
                                     <h4 className="font-semibold mb-2">Additional Information</h4>
                                     <ul className="text-gray-400 space-y-2">
@@ -561,19 +474,115 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
 
             {/* Blog Modal Button */}
             <div className="fixed bottom-4 right-4 z-50">
-                <Button
-                    onClick={() => setIsBlogModalOpen(true)}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200"
-                >
+                <Button onClick={() => setIsBlogModalOpen(true)} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200">
                     <Sparkles className="h-6 w-6" />
                 </Button>
             </div>
 
-            {/* Blog Modal */}
-            <BlogModal
-                isOpen={isBlogModalOpen}
-                onClose={() => setIsBlogModalOpen(false)}
-            />
+            {/* Compact Draggable Music Player */}
+            {isMusicPlayerOpen && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", duration: 0.4 }}
+                    style={{
+                        position: 'fixed',
+                        left: position.x,
+                        top: position.y,
+                        cursor: isDragging ? 'grabbing' : 'grab'
+                    }}
+                    className="z-50"
+                >
+                    <div 
+                        className="bg-gradient-to-r from-slate-900/95 to-black/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/20 p-3 w-64"
+                        onMouseDown={handleMouseDown}
+                    >
+                        <div className="flex items-center gap-3">
+                            {/* Album Art Thumbnail */}
+                            <motion.div
+                                animate={{ rotate: isPlaying ? 360 : 0 }}
+                                transition={{ duration: 10, repeat: isPlaying ? Infinity : 0, ease: "linear" }}
+                                className="w-12 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex-shrink-0"
+                            >
+                                <div className="w-full h-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
+                                    <Film className="w-6 h-6 text-white/80" />
+                                </div>
+                            </motion.div>
+
+                            {/* Song Info & Controls */}
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-xs font-semibold text-white truncate">My Track</h4>
+                                        <p className="text-[10px] text-gray-400 truncate">Moovendhan V</p>
+                                    </div>
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setIsMusicPlayerOpen(false);
+                                        }} 
+                                        className="p-1 rounded-full hover:bg-white/10 transition-colors flex-shrink-0 ml-2"
+                                    >
+                                        <X className="w-3 h-3 text-gray-400" />
+                                    </button>
+                                </div>
+
+                                {/* Progress Bar */}
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max={duration || 0}
+                                    value={currentTime}
+                                    onChange={handleSeek}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:h-2 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:cursor-pointer mb-1"
+                                />
+
+                                {/* Time & Controls */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[9px] text-gray-500">{formatTime(currentTime)}</span>
+                                    
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                togglePlayPause();
+                                            }}
+                                            className="p-1.5 rounded-full bg-white text-black hover:scale-110 transition-transform"
+                                        >
+                                            {isPlaying ? (
+                                                <div className="flex gap-0.5">
+                                                    <div className="w-0.5 h-3 bg-black rounded-full"></div>
+                                                    <div className="w-0.5 h-3 bg-black rounded-full"></div>
+                                                </div>
+                                            ) : (
+                                                <div className="w-0 h-0 border-l-[8px] border-l-black border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent ml-0.5"></div>
+                                            )}
+                                        </button>
+                                    </div>
+
+                                    <span className="text-[9px] text-gray-500">{formatTime(duration)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Audio Visualizer */}
+                        <div className="flex items-center justify-center gap-0.5 mt-2">
+                            {[...Array(8)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    animate={{ height: isPlaying ? [3, 8, 3] : 3 }}
+                                    transition={{ duration: 0.5, repeat: isPlaying ? Infinity : 0, delay: i * 0.1 }}
+                                    className="w-0.5 bg-blue-500 rounded-full"
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
+            <BlogModal isOpen={isBlogModalOpen} onClose={() => setIsBlogModalOpen(false)} />
         </main>
     );
 }
