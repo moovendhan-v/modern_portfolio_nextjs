@@ -260,7 +260,7 @@ function BlogModal({ isOpen, onClose }: BlogModalProps) {
                   <Avatar>
                     <AvatarImage
                     className="h-[30px] w-[30px] text-white"
-                     src="https://blogger.googleusercontent.com/img/a/AVvXsEhr_NlidocCkMrc26GYs86yIKArBF35_eEeNUUsuUZR6n05jvu8PL6jIGvyYLm1OgON1ZoT8oUkQu3BE9lkWj5dv6NnGxcSdd1FkHZS3xkiogFvY8TCEfMqGMMjkDFmzuNrLH2jW8yiMQssVU3H6Yrc1MwHafLEabPsy2_AwdwLGJL7u9D3H4Hs-MLxn7ib=s16000" />
+                     src="/images/profile-pic.jpg" />
                     <AvatarFallback>AI</AvatarFallback>
                   </Avatar>
                 </div>
