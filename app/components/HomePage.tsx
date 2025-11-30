@@ -115,7 +115,7 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
-    const [position, setPosition] = useState({ x: window.innerWidth - 280, y: window.innerHeight - 150 });
+    const [position, setPosition] = useState({ x: 280, y: 150 });
     const [isDragging, setIsDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 

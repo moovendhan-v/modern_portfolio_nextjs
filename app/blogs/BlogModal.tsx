@@ -38,7 +38,7 @@ interface BlogModalProps {
   onClose: () => void;
 }
 
-function BlogModal({ isOpen, onClose }: BlogModalProps) {
+export function BlogModal({ isOpen, onClose }: BlogModalProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -56,6 +56,7 @@ function BlogModal({ isOpen, onClose }: BlogModalProps) {
   const [currentTypingMessage, setCurrentTypingMessage] = useState<Message | null>(null);
   const [typingText, setTypingText] = useState('');
   const [typingIndex, setTypingIndex] = useState(0);
+  const [showAllSuggestions, setShowAllSuggestions] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -517,104 +518,100 @@ function BlogModal({ isOpen, onClose }: BlogModalProps) {
             </div>
             
             {/* Suggested prompts */}
-            <div className="flex gap-2 mt-3 flex-wrap">
-              {!selectedBlog ? (
-                <>
-                  <button 
-                    onClick={() => handleSuggestedPrompt("What is you name")}
-                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-full text-xs text-gray-300 border border-gray-700 hover:border-gray-600 transition-colors"
-                    disabled={isLoading}
-                  >
-                    What is you name
-                  </button>
-                  <button 
-                    onClick={() => handleSuggestedPrompt("How can i contact you ?")}
-                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-full text-xs text-gray-300 border border-gray-700 hover:border-gray-600 transition-colors"
-                    disabled={isLoading}
-                  >
-                    How can i contact you ?
-                  </button>
-                  <button 
-                    onClick={() => handleSuggestedPrompt("What is your role ?")}
-                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-full text-xs text-gray-300 border border-gray-700 hover:border-gray-600 transition-colors"
-                    disabled={isLoading}
-                  >
-                    What is your role ?
-                  </button>
-                  <button 
-                    onClick={() => handleSuggestedPrompt("You are expert in ?")}
-                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-full text-xs text-gray-300 border border-gray-700 hover:border-gray-600 transition-colors"
-                    disabled={isLoading}
-                  >
-                    You are expert in ?
-                  </button>
-                  <button 
-                    onClick={() => handleSuggestedPrompt("You are interested in ?")}
-                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-full text-xs text-gray-300 border border-gray-700 hover:border-gray-600 transition-colors"
-                    disabled={isLoading}
-                  >
-                    You are interested in ?
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button 
-                    onClick={() => handleSuggestedPrompt("How can AI automate this?")}
-                    className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 rounded-full text-xs text-blue-300 border border-blue-600/30 hover:border-blue-600/50 transition-colors"
-                    disabled={isLoading}
-                  >
-                    How can AI automate this?
-                  </button>
-                  <button 
-                    onClick={() => handleSuggestedPrompt("AI tools for this topic")}
-                    className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 rounded-full text-xs text-blue-300 border border-blue-600/30 hover:border-blue-600/50 transition-colors"
-                    disabled={isLoading}
-                  >
-                    AI tools for this topic
-                  </button>
-                  <button 
-                    onClick={() => handleSuggestedPrompt("Summarize key points")}
-                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-full text-xs text-gray-300 border border-gray-700 hover:border-gray-600 transition-colors"
-                    disabled={isLoading}
-                  >
-                    Summarize key points
-                  </button>
-                </>
-              )}
+            <div className="space-y-2 mt-4">
+              {(() => {
+                const allSuggestions = !selectedBlog ? [
+                  { text: "What is your name?", gradient: "from-blue-600/20 to-purple-600/20", hoverGradient: "from-blue-600/30 to-purple-600/30", border: "border-blue-500/30", hoverBorder: "border-blue-500/50", shadow: "shadow-blue-500/20" },
+                  { text: "How can I contact you?", gradient: "from-gray-800 to-gray-700", hoverGradient: "from-gray-700 to-gray-600", border: "border-gray-600/50", hoverBorder: "border-gray-500/50", shadow: "" },
+                  { text: "What is your role?", gradient: "from-emerald-600/20 to-teal-600/20", hoverGradient: "from-emerald-600/30 to-teal-600/30", border: "border-emerald-500/30", hoverBorder: "border-emerald-500/50", shadow: "shadow-emerald-500/20" },
+                  { text: "What are you expert in?", gradient: "from-violet-600/20 to-purple-600/20", hoverGradient: "from-violet-600/30 to-purple-600/30", border: "border-violet-500/30", hoverBorder: "border-violet-500/50", shadow: "shadow-violet-500/20" },
+                  { text: "What are you interested in?", gradient: "from-pink-600/20 to-rose-600/20", hoverGradient: "from-pink-600/30 to-rose-600/30", border: "border-pink-500/30", hoverBorder: "border-pink-500/50", shadow: "shadow-pink-500/20" },
+                  { text: "Tell me about your experience", gradient: "from-orange-600/20 to-amber-600/20", hoverGradient: "from-orange-600/30 to-amber-600/30", border: "border-orange-500/30", hoverBorder: "border-orange-500/50", shadow: "shadow-orange-500/20" },
+                  { text: "What projects have you worked on?", gradient: "from-cyan-600/20 to-blue-600/20", hoverGradient: "from-cyan-600/30 to-blue-600/30", border: "border-cyan-500/30", hoverBorder: "border-cyan-500/50", shadow: "shadow-cyan-500/20" },
+                  { text: "What technologies do you use?", gradient: "from-indigo-600/20 to-blue-600/20", hoverGradient: "from-indigo-600/30 to-blue-600/30", border: "border-indigo-500/30", hoverBorder: "border-indigo-500/50", shadow: "shadow-indigo-500/20" },
+                  { text: "Do you offer consulting services?", gradient: "from-fuchsia-600/20 to-pink-600/20", hoverGradient: "from-fuchsia-600/30 to-pink-600/30", border: "border-fuchsia-500/30", hoverBorder: "border-fuchsia-500/50", shadow: "shadow-fuchsia-500/20" },
+                  { text: "What is your GitHub profile?", gradient: "from-slate-700/50 to-gray-700/50", hoverGradient: "from-slate-600/50 to-gray-600/50", border: "border-slate-500/30", hoverBorder: "border-slate-400/50", shadow: "" },
+                  { text: "What certifications do you have?", gradient: "from-lime-600/20 to-green-600/20", hoverGradient: "from-lime-600/30 to-green-600/30", border: "border-lime-500/30", hoverBorder: "border-lime-500/50", shadow: "shadow-lime-500/20" },
+                  { text: "Can you help with my project?", gradient: "from-red-600/20 to-orange-600/20", hoverGradient: "from-red-600/30 to-orange-600/30", border: "border-red-500/30", hoverBorder: "border-red-500/50", shadow: "shadow-red-500/20" },
+                ] : [
+                  { text: "How can AI automate this?", gradient: "from-blue-600/30 to-cyan-600/30", hoverGradient: "from-blue-600/40 to-cyan-600/40", border: "border-blue-500/40", hoverBorder: "border-blue-400/60", shadow: "shadow-blue-500/30" },
+                  { text: "AI tools for this topic", gradient: "from-purple-600/30 to-pink-600/30", hoverGradient: "from-purple-600/40 to-pink-600/40", border: "border-purple-500/40", hoverBorder: "border-purple-400/60", shadow: "shadow-purple-500/30" },
+                  { text: "Summarize key points", gradient: "from-emerald-600/30 to-teal-600/30", hoverGradient: "from-emerald-600/40 to-teal-600/40", border: "border-emerald-500/40", hoverBorder: "border-emerald-400/60", shadow: "shadow-emerald-500/30" },
+                  { text: "What are the main takeaways?", gradient: "from-indigo-600/30 to-violet-600/30", hoverGradient: "from-indigo-600/40 to-violet-600/40", border: "border-indigo-500/40", hoverBorder: "border-indigo-400/60", shadow: "shadow-indigo-500/30" },
+                  { text: "Explain this in simple terms", gradient: "from-orange-600/30 to-amber-600/30", hoverGradient: "from-orange-600/40 to-amber-600/40", border: "border-orange-500/40", hoverBorder: "border-orange-400/60", shadow: "shadow-orange-500/30" },
+                  { text: "Related blog posts?", gradient: "from-rose-600/30 to-pink-600/30", hoverGradient: "from-rose-600/40 to-pink-600/40", border: "border-rose-500/40", hoverBorder: "border-rose-400/60", shadow: "shadow-rose-500/30" },
+                ];
+
+                // Filter suggestions based on input value
+                const filteredSuggestions = inputValue.trim()
+                  ? allSuggestions.filter(s => 
+                      s.text.toLowerCase().includes(inputValue.toLowerCase())
+                    )
+                  : allSuggestions;
+
+                // Show 3 suggestions initially, or all if expanded or filtering
+                const displayLimit = (showAllSuggestions || inputValue.trim()) ? filteredSuggestions.length : 3;
+                const suggestionsToShow = filteredSuggestions.slice(0, displayLimit);
+                const hasMore = filteredSuggestions.length > 3;
+
+                return (
+                  <>
+                    {filteredSuggestions.length > 0 ? (
+                      <>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-xs font-medium text-gray-400">
+                            {inputValue.trim() ? `💡 Suggestions (${filteredSuggestions.length})` : '✨ Quick Questions'}
+                          </div>
+                          {hasMore && !inputValue.trim() && (
+                            <button
+                              onClick={() => setShowAllSuggestions(!showAllSuggestions)}
+                              className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+                              disabled={isLoading}
+                            >
+                              {showAllSuggestions ? (
+                                <>
+                                  <span>Show less</span>
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                  </svg>
+                                </>
+                              ) : (
+                                <>
+                                  <span>Show {filteredSuggestions.length - 3} more</span>
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
+                          {suggestionsToShow.map((suggestion, index) => (
+                            <button
+                              key={index}
+                              onClick={() => handleSuggestedPrompt(suggestion.text)}
+                              className={`px-4 py-2 bg-gradient-to-r ${suggestion.gradient} hover:${suggestion.hoverGradient} rounded-full text-xs font-medium text-white border ${suggestion.border} hover:${suggestion.hoverBorder} transition-all duration-200 hover:shadow-lg ${suggestion.shadow ? `hover:${suggestion.shadow}` : ''} hover:scale-105 animate-in fade-in slide-in-from-bottom-2 duration-300`}
+                              style={{ animationDelay: `${index * 50}ms` }}
+                              disabled={isLoading}
+                            >
+                              {suggestion.text}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    ) : inputValue.trim() ? (
+                      <div className="text-xs text-gray-500 italic py-2">
+                        No matching suggestions found. Press Enter to send your message.
+                      </div>
+                    ) : null}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
       </DialogContent>
     </Dialog>
-  );
-}
-
-// Export the BlogModal component
-export { BlogModal };
-
-// Example usage component for demonstration
-export default function BlogModalExample() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  return (
-    <div className="min-h-screen bg-gray-900 p-8">
-      <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-4xl font-bold text-white mb-6">
-          AI Blog Assistant Demo
-        </h1>
-        <p className="text-gray-400 mb-8">
-          Click the button below to open the AI chat modal and try searching for blog posts!
-        </p>
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
-        >
-          <Sparkles className="h-5 w-5 mr-2" />
-          Open AI Chat
-        </Button>
-      </div>
-      
-      <BlogModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </div>
   );
 }
