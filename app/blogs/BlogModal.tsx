@@ -57,6 +57,7 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
   const [typingText, setTypingText] = useState('');
   const [typingIndex, setTypingIndex] = useState(0);
   const [showAllSuggestions, setShowAllSuggestions] = useState(false);
+  const [messageAnimations, setMessageAnimations] = useState<Record<string, boolean>>({});
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -76,14 +77,35 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
 
   useEffect(() => {
     if (currentTypingMessage && typingIndex < currentTypingMessage.content.length) {
+      const currentChar = currentTypingMessage.content[typingIndex];
+      const prevChar = typingIndex > 0 ? currentTypingMessage.content[typingIndex - 1] : '';
+      
+      // Natural typing speed with variations
+      let delay = 20; // Base speed (faster)
+      
+      // Slower after punctuation for natural feel
+      if (prevChar === '.' || prevChar === '!' || prevChar === '?') {
+        delay = 400; // Pause after sentence
+      } else if (prevChar === ',' || prevChar === ';' || prevChar === ':') {
+        delay = 200; // Shorter pause after comma
+      } else if (currentChar === ' ') {
+        delay = 30; // Quick space
+      } else if (prevChar === '\n') {
+        delay = 300; // Pause after line break
+      } else {
+        // Random variation for natural feel (15-35ms)
+        delay = 15 + Math.random() * 20;
+      }
+      
       const timer = setTimeout(() => {
-        setTypingText(prev => prev + currentTypingMessage.content[typingIndex]);
+        setTypingText(prev => prev + currentChar);
         setTypingIndex(prev => prev + 1);
         scrollToBottom();
-      }, 30);
+      }, delay);
       return () => clearTimeout(timer);
     } else if (currentTypingMessage && typingIndex >= currentTypingMessage.content.length) {
       setMessages(prev => [...prev, { ...currentTypingMessage, content: typingText }]);
+      setMessageAnimations(prev => ({ ...prev, [currentTypingMessage.id]: true }));
       setCurrentTypingMessage(null);
       setTypingText('');
       setTypingIndex(0);
@@ -132,6 +154,7 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    setMessageAnimations(prev => ({ ...prev, [userMessage.id]: true }));
     const currentMessage = inputValue;
     setInputValue('');
     if (textareaRef.current) {
@@ -250,7 +273,7 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] bg-gray-950 border-gray-800">
+      <DialogContent className="max-w-4xl max-h-[90vh] bg-gray-950 border-gray-800 animate-in fade-in zoom-in-95 duration-300">
         <div className="flex flex-col h-[80vh]">
           {/* Header */}
           <DialogHeader className="pb-4">
@@ -292,30 +315,34 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
           </DialogHeader>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4">
-            {messages.map((message) => (
-              <div key={message.id} className="space-y-3">
+          <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4 chat-messages custom-scrollbar">
+            {messages.map((message, index) => (
+              <div 
+                key={message.id} 
+                className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-300"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
                 <div
                   className={`flex gap-3 ${
                     message.type === 'user' ? 'justify-end' : 'justify-start'
                   }`}
                 >
                   {message.type === 'assistant' && (
-                    <div className="p-1.5 bg-blue-600 rounded-md self-start">
+                    <div className="p-1.5 bg-blue-600 rounded-full self-start animate-in zoom-in duration-200">
                       <Sparkles className="h-3 w-3 text-white" />
                     </div>
                   )}
                   <div
-                    className={`max-w-[75%] px-3 py-2 rounded-lg text-sm ${
+                    className={`max-w-[75%] px-4 py-2.5 text-sm message-bubble ${
                       message.type === 'user'
-                        ? 'bg-blue-600 text-white rounded-br-sm'
-                        : 'bg-gray-800 text-gray-100 rounded-bl-sm'
-                    }`}
+                        ? 'bg-blue-600 text-white rounded-[18px] rounded-br-[4px] shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30'
+                        : 'bg-gray-800 text-gray-100 rounded-[18px] rounded-bl-[4px] shadow-lg shadow-gray-900/50 hover:shadow-gray-900/70'
+                    } ${messageAnimations[message.id] ? 'animate-in zoom-in-95 duration-200' : ''}`}
                   >
                     <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
                   </div>
                   {message.type === 'user' && (
-                    <div className="p-1.5 bg-gray-800 rounded-md self-start">
+                    <div className="p-1.5 bg-gray-800 rounded-full self-start animate-in zoom-in duration-200">
                       <User className="h-3 w-3 text-gray-400" />
                     </div>
                   )}
@@ -324,10 +351,11 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
                 {/* Blog Posts Display */}
                 {message.blogPosts && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-3 mx-12">
-                    {message.blogPosts.map((post) => (
+                    {message.blogPosts.map((post, postIndex) => (
                       <Card
                         key={post.id}
-                        className="bg-gray-900/50 border-gray-700 hover:bg-gray-900/70 transition-all duration-200 hover:border-gray-600"
+                        className="bg-gray-900/50 border-gray-700 hover:bg-gray-900/70 transition-all duration-300 hover:border-gray-600 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/10 animate-in fade-in slide-in-from-bottom-4"
+                        style={{ animationDelay: `${postIndex * 100}ms` }}
                       >
                         <div className="aspect-[16/9] relative">
                           <img
@@ -391,21 +419,25 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
             ))}
 
             {currentTypingMessage && (
-              <div className="space-y-3">
+              <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
                 <div className="flex gap-3 justify-start">
-                  <div className="p-1.5 bg-blue-600 rounded-md self-start">
+                  <div className="p-1.5 bg-blue-600 rounded-full self-start animate-pulse">
                     <Sparkles className="h-3 w-3 text-white" />
                   </div>
-                  <div className="max-w-[75%] px-3 py-2 rounded-lg text-sm bg-gray-800 text-gray-100 rounded-bl-sm">
-                    <p className="whitespace-pre-wrap leading-relaxed">{typingText}</p>
+                  <div className="max-w-[75%] px-4 py-2.5 text-sm bg-gray-800 text-gray-100 rounded-[18px] rounded-bl-[4px] shadow-lg shadow-gray-900/50 animate-in zoom-in-95 duration-200 message-bubble">
+                    <p className="whitespace-pre-wrap leading-relaxed">
+                      {typingText}
+                      <span className="inline-block w-0.5 h-4 bg-blue-400 ml-0.5 typing-cursor" />
+                    </p>
                   </div>
                 </div>
                 {currentTypingMessage.blogPosts && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-3 mx-12">
-                    {currentTypingMessage.blogPosts.map((post) => (
+                    {currentTypingMessage.blogPosts.map((post, postIndex) => (
                       <Card
                         key={post.id}
-                        className="bg-gray-900/50 border-gray-700 hover:bg-gray-900/70 transition-all duration-200 hover:border-gray-600"
+                        className="bg-gray-900/50 border-gray-700 hover:bg-gray-900/70 transition-all duration-300 hover:border-gray-600 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/10 animate-in fade-in slide-in-from-bottom-4"
+                        style={{ animationDelay: `${postIndex * 100}ms` }}
                       >
                         <div className="aspect-[16/9] relative">
                           <img
@@ -469,15 +501,15 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
             )}
 
             {isLoading && !currentTypingMessage && (
-              <div className="flex gap-3">
-                <div className="p-1.5 bg-blue-600 rounded-md">
+              <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <div className="p-1.5 bg-blue-600 rounded-full animate-pulse">
                   <Sparkles className="h-3 w-3 text-white" />
                 </div>
-                <div className="bg-gray-800 px-3 py-2 rounded-lg rounded-bl-sm">
-                  <div className="flex gap-1">
-                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" />
-                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-100" />
-                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-200" />
+                <div className="bg-gray-800 px-4 py-2.5 rounded-[18px] rounded-bl-[4px] shadow-lg shadow-gray-900/50">
+                  <div className="flex gap-1.5">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full typing-dot" />
+                    <div className="w-2 h-2 bg-blue-400 rounded-full typing-dot" />
+                    <div className="w-2 h-2 bg-blue-400 rounded-full typing-dot" />
                   </div>
                 </div>
               </div>
@@ -486,8 +518,8 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-gray-800">
-            <div className="relative">
+          <div className="p-4 border-t border-gray-800/50 bg-gradient-to-b from-transparent to-gray-950/50">
+            <div className="relative bg-gray-900/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 shadow-2xl shadow-black/20 hover:border-gray-600/50 transition-all duration-300 focus-within:border-blue-500/50 focus-within:shadow-blue-500/10">
               <textarea
                 ref={textareaRef}
                 value={inputValue}
@@ -495,8 +527,8 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
                   setInputValue(e.target.value);
                   adjustTextareaHeight();
                 }}
-                placeholder="Send a message..."
-                className="w-full min-h-[80px] max-h-[200px] bg-gray-900 border border-gray-700 text-white placeholder-gray-500 text-sm rounded-lg px-4 py-4 pr-12 focus:border-gray-600 focus:outline-none resize-none overflow-y-auto"
+                placeholder="Message AI Assistant..."
+                className="w-full min-h-[56px] max-h-[200px] bg-transparent text-white placeholder-gray-500 text-sm rounded-2xl px-5 py-4 pr-14 focus:outline-none resize-none overflow-y-auto custom-scrollbar"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
                     e.preventDefault();
@@ -506,19 +538,35 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
                 disabled={isLoading}
                 rows={1}
               />
-              <Button
-                ref={buttonRef}
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
-                size="sm"
-                className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 text-white p-2"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+              <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                <Button
+                  ref={buttonRef}
+                  onClick={handleSendMessage}
+                  disabled={!inputValue.trim() || isLoading}
+                  size="sm"
+                  className={`rounded-xl p-2.5 transition-all duration-300 ${
+                    inputValue.trim() && !isLoading
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-110 active:scale-95'
+                      : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                  }`}
+                >
+                  <Send className={`h-4 w-4 transition-transform duration-200 ${
+                    inputValue.trim() && !isLoading ? 'rotate-0' : 'rotate-0'
+                  }`} />
+                </Button>
+              </div>
+              {/* Character hint */}
+              <div className="absolute bottom-1 left-4 text-[10px] text-gray-600">
+                {inputValue.length > 0 && (
+                  <span className="animate-in fade-in duration-200">
+                    {inputValue.length} characters • Press Enter to send
+                  </span>
+                )}
+              </div>
             </div>
             
             {/* Suggested prompts */}
-            <div className="space-y-2 mt-4">
+            <div className="space-y-3 mt-4">
               {(() => {
                 const allSuggestions = !selectedBlog ? [
                   { text: "What is your name?", gradient: "from-blue-600/20 to-purple-600/20", hoverGradient: "from-blue-600/30 to-purple-600/30", border: "border-blue-500/30", hoverBorder: "border-blue-500/50", shadow: "shadow-blue-500/20" },
@@ -558,27 +606,30 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
                   <>
                     {filteredSuggestions.length > 0 ? (
                       <>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="text-xs font-medium text-gray-400">
-                            {inputValue.trim() ? `💡 Suggestions (${filteredSuggestions.length})` : '✨ Quick Questions'}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1 h-4 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
+                            <div className="text-xs font-semibold text-gray-300">
+                              {inputValue.trim() ? `Suggestions (${filteredSuggestions.length})` : 'Quick Questions'}
+                            </div>
                           </div>
                           {hasMore && !inputValue.trim() && (
                             <button
                               onClick={() => setShowAllSuggestions(!showAllSuggestions)}
-                              className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+                              className="text-xs text-blue-400 hover:text-blue-300 transition-all duration-200 flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-blue-500/10"
                               disabled={isLoading}
                             >
                               {showAllSuggestions ? (
                                 <>
-                                  <span>Show less</span>
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <span className="font-medium">Show less</span>
+                                  <svg className="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                                   </svg>
                                 </>
                               ) : (
                                 <>
-                                  <span>Show {filteredSuggestions.length - 3} more</span>
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <span className="font-medium">+{filteredSuggestions.length - 3} more</span>
+                                  <svg className="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                   </svg>
                                 </>
@@ -591,18 +642,22 @@ export function BlogModal({ isOpen, onClose }: BlogModalProps) {
                             <button
                               key={index}
                               onClick={() => handleSuggestedPrompt(suggestion.text)}
-                              className={`px-4 py-2 bg-gradient-to-r ${suggestion.gradient} hover:${suggestion.hoverGradient} rounded-full text-xs font-medium text-white border ${suggestion.border} hover:${suggestion.hoverBorder} transition-all duration-200 hover:shadow-lg ${suggestion.shadow ? `hover:${suggestion.shadow}` : ''} hover:scale-105 animate-in fade-in slide-in-from-bottom-2 duration-300`}
+                              className={`group relative px-4 py-2.5 bg-gradient-to-r ${suggestion.gradient} hover:${suggestion.hoverGradient} rounded-xl text-xs font-medium text-white/90 hover:text-white border ${suggestion.border} hover:${suggestion.hoverBorder} transition-all duration-300 hover:shadow-lg ${suggestion.shadow ? `hover:${suggestion.shadow}` : ''} hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-2 duration-300 backdrop-blur-sm`}
                               style={{ animationDelay: `${index * 50}ms` }}
                               disabled={isLoading}
                             >
-                              {suggestion.text}
+                              <span className="relative z-10">{suggestion.text}</span>
+                              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </button>
                           ))}
                         </div>
                       </>
                     ) : inputValue.trim() ? (
-                      <div className="text-xs text-gray-500 italic py-2">
-                        No matching suggestions found. Press Enter to send your message.
+                      <div className="flex items-center gap-2 text-xs text-gray-500 py-3 px-4 bg-gray-900/30 rounded-xl border border-gray-800/50">
+                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>No matching suggestions. Press <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-[10px] font-mono border border-gray-700">Enter</kbd> to send</span>
                       </div>
                     ) : null}
                   </>

@@ -115,7 +115,7 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
-    const [position, setPosition] = useState({ x: 280, y: 150 });
+    const [position, setPosition] = useState({ x: 20, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
@@ -129,6 +129,11 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
         testimonialApi.on('select', () => setCurrentTestimonialIndex(testimonialApi.selectedScrollSnap()));
         servicesApi.on('select', () => setCurrentServicesIndex(servicesApi.selectedScrollSnap()));
     }, [testimonialApi, servicesApi]);
+
+    // Set initial position for music player (bottom-left)
+    useEffect(() => {
+        setPosition({ x: 20, y: window.innerHeight - 150 });
+    }, []);
 
     useEffect(() => {
         const audio = new Audio();
@@ -254,6 +259,20 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
             window.removeEventListener('mouseup', handleMouseUp);
         };
     }, [isDragging, dragOffset]);
+
+    // Update position on window resize to keep it in bottom-left
+    useEffect(() => {
+        const handleResize = () => {
+            if (!isDragging) {
+                setPosition(prev => ({
+                    x: Math.min(prev.x, window.innerWidth - 280),
+                    y: Math.min(prev.y, window.innerHeight - 150)
+                }));
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [isDragging]);
 
     return (
         <main className="min-h-screen bg-black text-white">
