@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import BlogChatButton from './BlogChatButton'; // Client component for the AI chat
+import BlogFilters from '@/app/blogs/BlogFilters'; // Client component for filters
 
 // Define the API response type
 interface BlogApiResponse {
@@ -57,72 +58,41 @@ async function getBlogPosts(): Promise<BlogPost[]> {
 export default async function BlogsPage() {
   const blogPosts = await getBlogPosts();
   
+  // Extract unique labels for filtering
+  const allLabels = Array.from(
+    new Set(blogPosts.flatMap(post => post.labels || []))
+  ).sort();
+  
   return (
     <main className="min-h-screen pt-20 pb-16 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="space-y-8">
+        {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-4 mb-6">
-            <h1 className="text-4xl font-bold">Blog Posts</h1>
+            <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+              Blog Posts
+            </h1>
             <BlogChatButton />
           </div>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Insights, tutorials, and stories about web development, gaming, and
-            creative editing. Use our AI assistant to discover relevant posts!
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Insights, tutorials, and stories about web development, cloud architecture, and cybersecurity.
+            <br />
+            <span className="text-sm text-gray-500">Use filters to find exactly what you're looking for!</span>
           </p>
         </div>
         
         {blogPosts.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-400">No blog posts found. Check back soon!</p>
+          <div className="text-center py-16">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-800/50 mb-4">
+              <Calendar className="w-8 h-8 text-gray-600" />
+            </div>
+            <p className="text-gray-400 text-lg">No blog posts found. Check back soon!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blogPosts.map((post: BlogPost) => (
-              <Card
-                key={post.id}
-                className="overflow-hidden bg-black/50 border-gray-800"
-              >
-                <div className="aspect-[16/9] relative">
-                  <Image
-                    src={post.thumbnail || 'https://avatars.githubusercontent.com/u/96030910?s=400&u=9e85c0b451a4d7b141357a646877f30b1cbf7e11&v=4'}
-                    alt={post.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-4 space-y-4">
-                  <div className="space-y-2">
-                    <span className="text-sm font-medium text-blue-500">
-                      {post.labels?.[0] || 'General'}
-                    </span>
-                    <h3 className="font-semibold line-clamp-2">{post.title}</h3>
-                    <p className="text-sm text-gray-400 line-clamp-2">
-                      {post.content.replace(/<[^>]*>/g, '').substring(0, 150)}...
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-gray-400">
-                    <div className="flex items-center gap-4">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {formatDistanceToNow(parseISO(post.published), { addSuffix: true })}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {Math.ceil(post.content.length / 1000)} min read
-                      </span>
-                    </div>
-                    <Link
-                      href={post.url}
-                      target="_blank"
-                      className="text-blue-500 hover:text-blue-400 flex items-center gap-1"
-                    >
-                      Read more <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          <>
+            {/* Filters Component */}
+            <BlogFilters posts={blogPosts} labels={allLabels} />
+          </>
         )}
       </div>
     </main>
