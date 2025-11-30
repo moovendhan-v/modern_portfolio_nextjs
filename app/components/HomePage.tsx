@@ -39,6 +39,7 @@ import { motion } from 'framer-motion';
 import type { Testimonial, Service } from '@/lib/types';
 import { BlogModal } from '@/app/blogs/BlogModal';
 import SkillsSection from './Skills';
+import ServiceModal from './ServiceModal';
 
 const ICONS = Object.freeze({
     Code: Code,
@@ -106,6 +107,7 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
     const [currentServicesIndex, setCurrentServicesIndex] = useState(0);
     const [hoveredService, setHoveredService] = useState<number | null>(null);
     const [selectedTestimonial, setSelectedTestimonial] = useState<number | null>(null);
+    const [selectedService, setSelectedService] = useState<Service | null>(null);
     const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
     const [visibleSkills, setVisibleSkills] = useState<number>(0);
     const [isMusicPlayerOpen, setIsMusicPlayerOpen] = useState(false);
@@ -337,8 +339,9 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
                                             className="flex-[0_0_100%] min-w-0 md:flex-[0_0_33.33%] px-4"
                                             onMouseEnter={() => setHoveredService(index)}
                                             onMouseLeave={() => setHoveredService(null)}
+                                            onClick={() => setSelectedService(service)}
                                         >
-                                            <div className="relative h-[400px] group overflow-hidden rounded-2xl transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-blue-500/20 group-hover:ring-2 group-hover:ring-blue-500/30">
+                                            <div className="relative h-[400px] group overflow-hidden rounded-2xl transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-blue-500/20 group-hover:ring-2 group-hover:ring-blue-500/30 cursor-pointer">
                                                 <Image
                                                     src={service.image}
                                                     alt={service.title}
@@ -605,6 +608,13 @@ export default function HomePage({ testimonials, services }: HomePageProps) {
             )}
 
             <BlogModal isOpen={isBlogModalOpen} onClose={() => setIsBlogModalOpen(false)} />
+            
+            <ServiceModal 
+                service={selectedService} 
+                isOpen={!!selectedService} 
+                onClose={() => setSelectedService(null)} 
+                getIconComponent={getIconComponent}
+            />
         </main>
     );
 }
